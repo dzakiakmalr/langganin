@@ -1,11 +1,19 @@
+import type { Locale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />

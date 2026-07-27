@@ -1,0 +1,64 @@
+{
+  "Metadata": {
+    "titleTemplate": "%s — Langganin",
+    "description": "Langganin membantumu melacak langganan & free trial, mengingatkan sebelum perpanjangan otomatis, dan merangkum pengeluaran bulananmu."
+  },
+  "Nav": {
+    "dashboard": "Dasbor",
+    "subscriptions": "Langganan",
+    "calendar": "Kalender",
+    "analytics": "Analitik",
+    "settings": "Pengaturan",
+    "tagline": "v0.1 — app skeleton"
+  },
+  "Topbar": {
+    "searchPlaceholder": "Cari langganan… (Cmd+K — segera hadir)",
+    "greeting": "Halo, Pengguna"
+  },
+  "LanguageSwitcher": {
+    "ariaLabel": "Ganti bahasa"
+  },
+  "Landing": {
+    "description": "Landing page publik akan ada di sini — tempatmu mengenal cara Langganin melacak langganan & free trial, mengingatkan sebelum perpanjangan otomatis, dan merangkum pengeluaran bulananmu.",
+    "login": "Masuk",
+    "register": "Daftar",
+    "viewDashboard": "Lihat dasbor (placeholder)"
+  },
+  "Login": {
+    "title": "Masuk",
+    "description": "Form login Supabase Auth (email & password, plus Google OAuth) akan ada di halaman ini.",
+    "noAccount": "Belum punya akun?",
+    "registerLink": "Daftar"
+  },
+  "Register": {
+    "title": "Daftar",
+    "description": "Form registrasi Supabase Auth akan ada di halaman ini — akun baru sekaligus menyiapkan kategori default untuk pengguna pertama kali.",
+    "haveAccount": "Sudah punya akun?",
+    "loginLink": "Masuk"
+  },
+  "Dashboard": {
+    "title": "Dasbor",
+    "description": "Ringkasan total pengeluaran bulanan & tahunan (proyeksi), daftar perpanjangan 7 dan 30 hari ke depan, serta grafik pengeluaran per kategori akan tampil di sini."
+  },
+  "Subscriptions": {
+    "title": "Langganan",
+    "description": "Daftar semua langgananmu — lengkap dengan pencarian, filter kategori & status, dan tombol tambah langganan — akan ada di halaman ini."
+  },
+  "SubscriptionDetail": {
+    "title": "Detail Langganan",
+    "description": "Form edit lengkap (nama, kategori, harga, siklus tagihan, trial, metode pembayaran, catatan), riwayat event, dan aksi hapus untuk langganan ini akan tampil di sini.",
+    "idLabel": "ID langganan:"
+  },
+  "Calendar": {
+    "title": "Kalender",
+    "description": "Tampilan kalender bulanan dengan penanda tanggal perpanjangan dan akhir trial (warna mengikuti kategori) akan ada di halaman ini."
+  },
+  "Analytics": {
+    "title": "Analitik",
+    "description": "Tren pengeluaran dari waktu ke waktu, rincian per kategori, dan sorotan langganan termahal akan hadir di halaman ini (Fase 3)."
+  },
+  "Settings": {
+    "title": "Pengaturan",
+    "description": "Profil (mata uang default, zona waktu, batas bujet bulanan), kategori kustom dengan warna, dan preferensi notifikasi akan diatur di halaman ini."
+  }
+}

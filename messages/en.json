@@ -1,0 +1,64 @@
+{
+  "Metadata": {
+    "titleTemplate": "%s — Langganin",
+    "description": "Langganin helps you track subscriptions & free trials, reminds you before auto-renewals hit, and sums up your monthly spending."
+  },
+  "Nav": {
+    "dashboard": "Dashboard",
+    "subscriptions": "Subscriptions",
+    "calendar": "Calendar",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "tagline": "v0.1 — app skeleton"
+  },
+  "Topbar": {
+    "searchPlaceholder": "Search subscriptions… (Cmd+K — coming soon)",
+    "greeting": "Hi, User"
+  },
+  "LanguageSwitcher": {
+    "ariaLabel": "Switch language"
+  },
+  "Landing": {
+    "description": "The public landing page will live here — where you'll learn how Langganin tracks your subscriptions & free trials, reminds you before auto-renewals, and sums up your monthly spending.",
+    "login": "Log in",
+    "register": "Sign up",
+    "viewDashboard": "Peek at the dashboard (placeholder)"
+  },
+  "Login": {
+    "title": "Log in",
+    "description": "The Supabase Auth login form (email & password, plus Google OAuth) will live on this page.",
+    "noAccount": "Don't have an account yet?",
+    "registerLink": "Sign up"
+  },
+  "Register": {
+    "title": "Sign up",
+    "description": "The Supabase Auth registration form will live on this page — a new account also sets up default categories for first-time users.",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "description": "Your monthly & yearly (projected) spending summary, renewals due in the next 7 and 30 days, and a spending-by-category chart will show up here."
+  },
+  "Subscriptions": {
+    "title": "Subscriptions",
+    "description": "All your subscriptions — with search, category & status filters, and an add-subscription button — will live on this page."
+  },
+  "SubscriptionDetail": {
+    "title": "Subscription Detail",
+    "description": "The full edit form (name, category, price, billing cycle, trial, payment method, notes), event history, and a delete action for this subscription will show up here.",
+    "idLabel": "Subscription ID:"
+  },
+  "Calendar": {
+    "title": "Calendar",
+    "description": "A monthly calendar view marking renewal and trial-end dates (colored by category) will live on this page."
+  },
+  "Analytics": {
+    "title": "Analytics",
+    "description": "Spending trends over time, category breakdowns, and call-outs for your priciest subscriptions will land on this page (Phase 3)."
+  },
+  "Settings": {
+    "title": "Settings",
+    "description": "Profile (default currency, timezone, monthly budget cap), custom categories with colors, and notification preferences will be managed on this page."
+  }
+}
