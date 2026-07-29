@@ -1,4 +1,3 @@
-import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
 export default async function AuthLayout({

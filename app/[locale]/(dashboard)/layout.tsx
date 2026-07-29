@@ -1,4 +1,3 @@
-import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
 import Sidebar from "@/components/Sidebar";

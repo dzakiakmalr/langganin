@@ -38,7 +38,21 @@
   },
   "Dashboard": {
     "title": "Dashboard",
-    "description": "Your monthly & yearly (projected) spending summary, renewals due in the next 7 and 30 days, and a spending-by-category chart will show up here."
+    "description": "Your monthly & yearly (projected) spending summary, renewals due in the next 7 and 30 days, and a spending-by-category chart will show up here.",
+    "greeting": "Hi, {name} 👋",
+    "monthlyTotal": "Monthly Total",
+    "projectedYearly": "Projected Yearly",
+    "activeSubscriptions": "Active Subscriptions",
+    "upcomingRenewals": "Upcoming Renewals",
+    "next7Days": "Next 7 Days",
+    "next30Days": "Next 30 Days",
+    "spendByCategory": "Spending by Category",
+    "addYourFirst": "Add Your First Subscription",
+    "noSubscriptions": "No subscriptions yet! Start tracking your first one.",
+    "vsLastMonth": "{direction} {percent}% vs last month",
+    "daysUntil": "{count} days left",
+    "today": "Today",
+    "loading": "Loading dashboard…"
   },
   "Subscriptions": {
     "title": "Subscriptions",

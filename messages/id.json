@@ -38,7 +38,21 @@
   },
   "Dashboard": {
     "title": "Dasbor",
-    "description": "Ringkasan total pengeluaran bulanan & tahunan (proyeksi), daftar perpanjangan 7 dan 30 hari ke depan, serta grafik pengeluaran per kategori akan tampil di sini."
+    "description": "Ringkasan total pengeluaran bulanan & tahunan (proyeksi), daftar perpanjangan 7 dan 30 hari ke depan, serta grafik pengeluaran per kategori akan tampil di sini.",
+    "greeting": "Halo, {name} 👋",
+    "monthlyTotal": "Total Bulan Ini",
+    "projectedYearly": "Proyeksi Tahunan",
+    "activeSubscriptions": "Langganan Aktif",
+    "upcomingRenewals": "Perpanjangan Mendatang",
+    "next7Days": "7 Hari ke Depan",
+    "next30Days": "30 Hari ke Depan",
+    "spendByCategory": "Pengeluaran per Kategori",
+    "addYourFirst": "Tambah Langganan Pertamamu",
+    "noSubscriptions": "Belum ada langganan nih! Mulai lacak yang pertama.",
+    "vsLastMonth": "{direction} {percent}% dibanding bulan lalu",
+    "daysUntil": "{count} hari lagi",
+    "today": "Hari ini",
+    "loading": "Memuat dasbor…"
   },
   "Subscriptions": {
     "title": "Langganan",
