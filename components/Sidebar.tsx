@@ -38,11 +38,6 @@ const NAV_ITEMS = [
   },
 ] as const;
 
-/**
- * Sidebar with glass-panel styling (04-DESIGN-SYSTEM.md §5) and a
- * collapse toggle for an icon-only rail (~64 px).
- * Hidden below `lg` — full mobile navigation is a separate later phase.
- */
 export default function Sidebar() {
   const t = useTranslations("Nav");
   const pathname = usePathname();
@@ -57,19 +52,17 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`relative hidden shrink-0 flex-col transition-[width] duration-200 lg:flex ${
+      className={`sticky top-0 z-20 hidden h-screen shrink-0 flex-col transition-[width] duration-200 lg:flex ${
         collapsed ? "w-16" : "w-64"
       }`}
     >
-      {/* Gradient blob behind the glass — 04-DESIGN-SYSTEM.md §5 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg-gradient-a to-bg-gradient-b opacity-70"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg-gradient-a to-bg-gradient-b opacity-85"
       />
 
-      {/* Glass panel */}
-      <div className="glass-panel flex flex-1 flex-col rounded-none border-l-0">
-        {/* Brand row + collapse toggle */}
+      <div className="glass-sidebar flex flex-1 flex-col rounded-none border-l-0">
+        {/* Brand + collapse toggle */}
         <div className="flex h-16 items-center gap-2 px-3">
           <Link
             href="/"
@@ -84,7 +77,7 @@ export default function Sidebar() {
             type="button"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             onClick={() => setCollapsed((v) => !v)}
-            className={`rounded-card p-1.5 text-text-muted transition-colors hover:bg-primary-tint hover:text-text ${
+            className={`rounded-[14px] p-1.5 text-text-muted transition-colors hover:bg-white/20 hover:text-text ${
               collapsed ? "" : "ml-auto"
             }`}
           >
@@ -92,17 +85,16 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-2 py-4">
           <ul className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-card px-3 py-2.5 text-sm font-medium transition-all ${
+                  className={`flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                     isActive(item.href)
-                      ? "bg-primary text-white"
-                      : "text-text hover:bg-primary-tint hover:text-text"
+                      ? "bg-clay-surface/80 text-primary font-semibold shadow-pressed"
+                      : "text-text hover:bg-white/20 hover:text-text"
                   } ${collapsed ? "justify-center" : ""}`}
                   title={collapsed ? t(item.labelKey) : undefined}
                 >
@@ -116,7 +108,6 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        {/* Footer tagline — hidden when collapsed */}
         {!collapsed && (
           <p className="px-6 py-4 text-xs text-text-muted">{t("tagline")}</p>
         )}

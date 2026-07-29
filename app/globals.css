@@ -21,46 +21,160 @@
   --color-glass-fill: rgba(255, 255, 255, 0.55);
   --color-glass-border: rgba(255, 255, 255, 0.45);
 
-  /* Typography — 04-DESIGN-SYSTEM.md §3 (variables set by next/font in app/layout.tsx) */
+  /* Typography — 04-DESIGN-SYSTEM.md §3 */
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-bricolage), var(--font-jakarta), ui-sans-serif,
     system-ui, sans-serif;
 
-  /* Radius scale — 04-DESIGN-SYSTEM.md §4 (cards 20px, buttons/badges pill) & §5 (glass panels 20px) */
-  --radius-card: 20px;
+  /* Radius — enlarged for softer clay silhouette (was 20px) */
+  --radius-card: 24px;
   --radius-pill: 9999px;
 }
 
-/*
- * Clay-shadow utility classes — 04-DESIGN-SYSTEM.md §4.
- * Components use these classes instead of inline box-shadows.
- */
-@utility clay-shadow {
-  box-shadow:
-    -6px -6px 14px rgba(255, 255, 255, 0.75),
-    8px 8px 20px rgba(180, 120, 90, 0.25);
+/* ── Background page surface (Level 0) ──────────────────────────────── */
+@utility bg-page {
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 30% 20%,
+      rgba(255, 248, 240, 1) 0%,
+      rgba(251, 246, 239, 1) 60%,
+      rgba(250, 240, 228, 1) 100%
+    );
+  background-attachment: fixed;
 }
 
-@utility clay-shadow-hover {
-  box-shadow:
-    -8px -8px 16px rgba(255, 255, 255, 0.8),
-    10px 10px 24px rgba(180, 120, 90, 0.3);
+/* ── Clay surface gradient (replaces flat bg-clay-surface on cards) ─── */
+@utility clay-gradient {
+  background: linear-gradient(
+    135deg,
+    #f8f1e6 0%,
+    #f2e9da 100%
+  );
 }
 
-@utility clay-shadow-inset {
+/* ── Shadow system — light source top-left ──────────────────────────── */
+
+/* Small cards → SummaryCard (tight, intimate) */
+@utility shadow-card-sm {
   box-shadow:
-    inset 4px 4px 10px rgba(180, 120, 90, 0.25),
-    inset -4px -4px 10px rgba(255, 255, 255, 0.6);
+    0 1px 2px rgba(180, 120, 90, 0.08),
+    2px 4px 12px rgba(180, 120, 90, 0.12),
+    -1px -1px 4px rgba(255, 255, 255, 0.9),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/*
- * Glass-panel utility — 04-DESIGN-SYSTEM.md §5.
- * Sidebar & top bar chrome, modals, and the command palette use this.
- */
-@utility glass-panel {
-  background: var(--color-glass-fill);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--color-glass-border);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+/* Medium cards → ChartCard, UpcomingRenewals container (softer, larger) */
+@utility shadow-card-md {
+  box-shadow:
+    0 2px 4px rgba(180, 120, 90, 0.06),
+    4px 8px 24px rgba(180, 120, 90, 0.14),
+    -2px -2px 6px rgba(255, 255, 255, 0.85),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Large → modals, future command palette */
+@utility shadow-card-lg {
+  box-shadow:
+    0 4px 8px rgba(180, 120, 90, 0.06),
+    8px 16px 40px rgba(180, 120, 90, 0.16),
+    -3px -3px 8px rgba(255, 255, 255, 0.8),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Glass panels → lighter, softer, with specular top-edge highlight */
+@utility shadow-glass {
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Pressed / active → physical depression */
+@utility shadow-pressed {
+  box-shadow:
+    inset 3px 3px 8px rgba(180, 120, 90, 0.2),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.7);
+}
+
+/* Hover lift → shadow grows ~20 % offset + blur */
+@utility shadow-card-sm-hover {
+  box-shadow:
+    0 2px 4px rgba(180, 120, 90, 0.1),
+    3px 6px 16px rgba(180, 120, 90, 0.16),
+    -2px -2px 6px rgba(255, 255, 255, 0.9),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+@utility shadow-card-md-hover {
+  box-shadow:
+    0 3px 6px rgba(180, 120, 90, 0.08),
+    6px 12px 32px rgba(180, 120, 90, 0.18),
+    -3px -3px 8px rgba(255, 255, 255, 0.85),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* ── Glass material variants ────────────────────────────────────────── */
+
+@utility glass-sidebar {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(36px) saturate(150%);
+  -webkit-backdrop-filter: blur(36px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+@utility glass-topbar {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(32px) saturate(140%);
+  -webkit-backdrop-filter: blur(32px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 2px 24px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+@utility glass-pill {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+@utility glass-tooltip {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Loading skeleton shimmer ───────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@utility animate-shimmer {
+  background: linear-gradient(
+    105deg,
+    var(--color-clay-surface) 0%,
+    var(--color-clay-surface) 38%,
+    rgba(255, 255, 255, 0.5) 44%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.5) 56%,
+    var(--color-clay-surface) 62%,
+    var(--color-clay-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }

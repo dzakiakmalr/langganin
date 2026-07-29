@@ -5,7 +5,7 @@ type EmptyStateProps = {
 
 export default function EmptyState({ message, actionLabel }: EmptyStateProps) {
   return (
-    <section className="rounded-card bg-clay-surface p-12 text-center clay-shadow">
+    <section className="rounded-card clay-gradient p-12 text-center shadow-card-md">
       <p className="text-5xl">📭</p>
       <p className="mx-auto mt-4 max-w-sm text-text-muted">{message}</p>
       <button

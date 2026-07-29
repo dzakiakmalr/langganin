@@ -18,7 +18,7 @@ export default function HealthLayout({
 }>) {
   return (
     <html lang="id" className={fontVariables}>
-      <body className="bg-bg font-sans text-text antialiased">{children}</body>
+      <body className="bg-page font-sans text-text antialiased">{children}</body>
     </html>
   );
 }

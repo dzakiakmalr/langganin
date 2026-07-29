@@ -34,7 +34,6 @@ function daysColor(days: number): string {
 }
 
 function getRenewalDate(sub: Subscription): Date {
-  // For trial subscriptions the trial end date is the most urgent deadline.
   if (sub.status === "trial" && sub.trial_end_date) {
     return startOfDay(parseISO(sub.trial_end_date));
   }
@@ -79,7 +78,7 @@ export default function UpcomingRenewals({
   if (all.length === 0) return null;
 
   return (
-    <div className="rounded-card bg-clay-surface p-6 clay-shadow transition-shadow hover:clay-shadow-hover">
+    <div className="rounded-card clay-gradient p-6 shadow-card-md transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px] hover:shadow-card-md-hover">
       <h2 className="font-display text-lg font-bold">{labels.title}</h2>
       {[within7, within30].map(
         (rows, idx) =>
@@ -92,7 +91,7 @@ export default function UpcomingRenewals({
                 {rows.map((row) => (
                   <li
                     key={row.id}
-                    className="flex items-center justify-between gap-3 rounded-card bg-clay-surface px-4 py-2.5 clay-shadow-inset"
+                    className="flex cursor-default items-center justify-between gap-3 rounded-[16px] bg-white/20 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-white/30 hover:shadow-card-sm active:scale-[0.98] active:shadow-pressed"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="truncate text-sm font-medium">
@@ -106,11 +105,11 @@ export default function UpcomingRenewals({
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-3 tabular-nums">
-                      <span className="text-sm font-semibold">
+                      <span className="text-base font-semibold text-text">
                         {formatIdr(row.price)}
                       </span>
                       <span
-                        className={`min-w-[5.5rem] text-right text-xs font-semibold ${daysColor(row.daysUntil)}`}
+                        className={`min-w-[5.5rem] rounded-pill bg-clay-surface/60 px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
                       >
                         {row.daysUntil <= 0
                           ? labels.today
