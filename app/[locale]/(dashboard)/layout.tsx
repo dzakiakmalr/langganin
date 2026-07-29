@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 
+import { SidebarProvider } from "@/components/sidebar-context";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
@@ -14,12 +15,14 @@ export default async function DashboardLayout({
   setRequestLocale(locale);
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+    <SidebarProvider>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Topbar />
+          <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
