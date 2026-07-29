@@ -15,7 +15,7 @@ This gives a real depth hierarchy instead of decoration for its own sake: base l
 | `--color-bg` | `#FBF6EF` | Page background (warm off-white, not stark white) |
 | `--color-bg-gradient-a` | `#FFD9C2` | Soft blob gradient behind glass panels (see §5) |
 | `--color-bg-gradient-b` | `#FFEEE3` | Second gradient stop |
-| `--color-clay-surface` | `#F5EEE3` | Fill for clay cards/buttons — slightly warmer/darker than page bg so the clay shadow reads |
+| `--color-clay-surface` | `#F1E2D0` | Fill for clay cards/buttons — deliberately a noticeably warmer/deeper tone than `--color-bg` (not just a few RGB points off) so the card reads as a distinct surface even before shadow is applied |
 | `--color-primary` | `#D97757` | Terracotta-orange accent — primary actions, active nav item |
 | `--color-primary-hover` | `#C9694A` | Primary hover/pressed |
 | `--color-primary-tint` | `#F3C4AC` | Light accent fills, selected states |

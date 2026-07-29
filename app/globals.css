@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — single source of truth: docs/claudeai_mds/04-DESIGN-SYSTEM.md
- * Colors (§2), typography (§3), radius scale (§4/§5).
+ * Design tokens — 04-DESIGN-SYSTEM.md §2–§5.
+ * --color-clay-surface deepened to #F1E2D0 (was #F5EEE3) so cards
+ * read as a distinct layer against --color-bg (#FBF6EF).
  */
 @theme {
-  /* Colors — 04-DESIGN-SYSTEM.md §2 */
   --color-bg: #fbf6ef;
   --color-bg-gradient-a: #ffd9c2;
   --color-bg-gradient-b: #ffeee3;
-  --color-clay-surface: #f5eee3;
+  --color-clay-surface: #f1e2d0;
   --color-primary: #d97757;
   --color-primary-hover: #c9694a;
   --color-primary-tint: #f3c4ac;
@@ -21,140 +21,103 @@
   --color-glass-fill: rgba(255, 255, 255, 0.55);
   --color-glass-border: rgba(255, 255, 255, 0.45);
 
-  /* Typography — 04-DESIGN-SYSTEM.md §3 */
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-bricolage), var(--font-jakarta), ui-sans-serif,
+  --font-display: var(--font-space), var(--font-jakarta), ui-sans-serif,
     system-ui, sans-serif;
 
-  /* Radius — enlarged for softer clay silhouette (was 20px) */
   --radius-card: 24px;
   --radius-pill: 9999px;
 }
 
-/* ── Background page surface (Level 0) ──────────────────────────────── */
+/* ── Page background ─────────────────────────────────────────────── */
 @utility bg-page {
-  background:
-    radial-gradient(
-      ellipse 80% 60% at 30% 20%,
-      rgba(255, 248, 240, 1) 0%,
-      rgba(251, 246, 239, 1) 60%,
-      rgba(250, 240, 228, 1) 100%
-    );
+  background: radial-gradient(
+    ellipse 80% 60% at 30% 20%,
+    rgba(255, 248, 240, 1) 0%,
+    rgba(251, 246, 239, 1) 60%,
+    rgba(250, 240, 228, 1) 100%
+  );
   background-attachment: fixed;
 }
 
-/* ── Clay surface gradient (replaces flat bg-clay-surface on cards) ─── */
+/* ── Clay card surface gradient ────────────────────────────────────── */
 @utility clay-gradient {
-  background: linear-gradient(
-    135deg,
-    #f8f1e6 0%,
-    #f2e9da 100%
-  );
+  background: linear-gradient(135deg, #f8f1e6 0%, #f2e9da 100%);
 }
 
-/* ── Shadow system — light source top-left ──────────────────────────── */
-
-/* Small cards → SummaryCard (tight, intimate) */
-@utility shadow-card-sm {
+/* ── Clay card shadow — permanent card containers ──────────────────── */
+.clay-card {
   box-shadow:
-    0 1px 2px rgba(180, 120, 90, 0.08),
-    2px 4px 12px rgba(180, 120, 90, 0.12),
-    -1px -1px 4px rgba(255, 255, 255, 0.9),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.6);
+    -8px -8px 18px rgba(255, 255, 255, 0.9),
+    10px 10px 26px rgba(166, 100, 68, 0.35);
 }
-
-/* Medium cards → ChartCard, UpcomingRenewals container (softer, larger) */
-@utility shadow-card-md {
+.clay-card:hover {
   box-shadow:
-    0 2px 4px rgba(180, 120, 90, 0.06),
-    4px 8px 24px rgba(180, 120, 90, 0.14),
-    -2px -2px 6px rgba(255, 255, 255, 0.85),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+    -9px -9px 20px rgba(255, 255, 255, 0.9),
+    12px 12px 30px rgba(166, 100, 68, 0.4);
 }
-
-/* Large → modals, future command palette */
-@utility shadow-card-lg {
+.clay-card:active {
   box-shadow:
-    0 4px 8px rgba(180, 120, 90, 0.06),
-    8px 16px 40px rgba(180, 120, 90, 0.16),
-    -3px -3px 8px rgba(255, 255, 255, 0.8),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+    inset 5px 5px 12px rgba(166, 100, 68, 0.3),
+    inset -5px -5px 12px rgba(255, 255, 255, 0.7);
 }
 
-/* Glass panels → lighter, softer, with specular top-edge highlight */
-@utility shadow-glass {
+/* ── Clay row hover / press (renewal list rows — flat rest state) ──── */
+@utility clay-row-hover {
   box-shadow:
-    0 4px 32px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    -4px -4px 10px rgba(255, 255, 255, 0.85),
+    5px 5px 14px rgba(166, 100, 68, 0.25);
 }
 
-/* Pressed / active → physical depression */
+@utility clay-row-press {
+  box-shadow:
+    inset 3px 3px 8px rgba(166, 100, 68, 0.25),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.6);
+}
+
+/* ── Pressed state for sidebar active nav ──────────────────────────── */
 @utility shadow-pressed {
   box-shadow:
     inset 3px 3px 8px rgba(180, 120, 90, 0.2),
     inset -2px -2px 6px rgba(255, 255, 255, 0.7);
 }
 
-/* Hover lift → shadow grows ~20 % offset + blur */
-@utility shadow-card-sm-hover {
-  box-shadow:
-    0 2px 4px rgba(180, 120, 90, 0.1),
-    3px 6px 16px rgba(180, 120, 90, 0.16),
-    -2px -2px 6px rgba(255, 255, 255, 0.9),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.65);
-}
-
-@utility shadow-card-md-hover {
-  box-shadow:
-    0 3px 6px rgba(180, 120, 90, 0.08),
-    6px 12px 32px rgba(180, 120, 90, 0.18),
-    -3px -3px 8px rgba(255, 255, 255, 0.85),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.55);
-}
-
-/* ── Glass material variants ────────────────────────────────────────── */
-
-@utility glass-sidebar {
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(36px) saturate(150%);
-  -webkit-backdrop-filter: blur(36px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow:
-    0 4px 32px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-@utility glass-topbar {
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 2px 24px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-@utility glass-pill {
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
-@utility glass-tooltip {
+/* ── Glass panel — sidebar, top bar, modals, command palette ────────── */
+.glass-panel {
   background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-/* ── Loading skeleton shimmer ───────────────────────────────────────── */
+/* ── Gradient blobs behind glass surfaces ──────────────────────────── */
+.bg-blob-a {
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, #ffd9c2 0%, transparent 70%);
+  filter: blur(60px);
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
 
+.bg-blob-b {
+  position: fixed;
+  bottom: -15%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, #ffeee3 0%, transparent 70%);
+  filter: blur(60px);
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Loading skeleton shimmer ──────────────────────────────────────── */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;

@@ -12,7 +12,7 @@ export default function Topbar() {
   const { toggleMobile } = useSidebar();
 
   return (
-    <header className="sticky top-0 z-10 glass-topbar flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-10 glass-panel flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6">
       <div className="flex items-center gap-2 lg:hidden">
         <button
           type="button"
@@ -28,7 +28,7 @@ export default function Topbar() {
         </Link>
       </div>
       <div className="hidden min-w-0 flex-1 lg:block">
-        <div className="w-full max-w-md truncate rounded-pill glass-pill px-4 py-2 text-sm text-text-muted">
+        <div className="w-full max-w-md truncate rounded-pill glass-panel px-4 py-2 text-sm text-text-muted">
           {t("searchPlaceholder")}
         </div>
       </div>
@@ -40,7 +40,7 @@ export default function Topbar() {
         {/* Clay avatar pebble */}
         <span
           aria-hidden
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-tint font-display text-sm font-bold text-text shadow-card-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-tint font-display text-sm font-bold text-text clay-card"
         >
           L
         </span>

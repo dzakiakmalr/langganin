@@ -72,7 +72,7 @@ export default function Sidebar() {
           className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg-gradient-a to-bg-gradient-b opacity-85"
         />
 
-        <div className="glass-sidebar flex flex-1 flex-col rounded-none border-l-0">
+        <div className="glass-panel flex flex-1 flex-col rounded-none border-l-0">
           {/* Brand row */}
           {collapsed ? (
             <div className="flex h-16 items-center justify-center px-3">

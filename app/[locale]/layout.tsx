@@ -43,7 +43,10 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={fontVariables}>
-      <body         className="bg-page font-sans text-text antialiased">
+      <body className="bg-page font-sans text-text antialiased">
+        {/* Gradient blobs behind glass surfaces — 04-DESIGN-SYSTEM.md §5 */}
+        <div className="bg-blob-a" aria-hidden />
+        <div className="bg-blob-b" aria-hidden />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
