@@ -123,7 +123,7 @@ export default async function LandingPage({
       <LandingNav locale={locale} />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
-      <section className="relative flex min-h-[90dvh] items-center justify-center overflow-hidden px-4 py-24">
+      <section className="relative flex min-h-[75dvh] items-center justify-center overflow-hidden px-4 py-10 sm:py-14">
         {/* Decorative blobs */}
         <div
           aria-hidden
