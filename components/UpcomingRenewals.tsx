@@ -88,36 +88,71 @@ export default function UpcomingRenewals({
                 {idx === 0 ? labels.next7Days : labels.next30Days}
               </h3>
               <ul className="flex flex-col gap-2">
-                {rows.map((row) => (
-                  <li
-                    key={row.id}
-                    className="flex cursor-default items-center justify-between gap-3 rounded-[16px] bg-clay-100 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-clay-200 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="truncate text-sm font-medium">
-                        {row.name}
-                      </span>
-                      {row.category && (
-                        <CategoryBadge
-                          name={row.category.name}
-                          color={row.category.color}
-                        />
-                      )}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3 tabular-nums">
-                      <span className="text-base font-semibold text-text">
-                        {formatIdr(row.price)}
-                      </span>
-                      <span
-                        className={`min-w-[5.5rem] rounded-pill bg-surface px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
-                      >
-                        {row.daysUntil <= 0
-                          ? labels.today
-                          : labels.daysUntil(row.daysUntil)}
-                      </span>
-                    </div>
-                  </li>
-                ))}
+                {rows.map((row) => {
+                  const daysLabel =
+                    row.daysUntil <= 0
+                      ? labels.today
+                      : labels.daysUntil(row.daysUntil);
+
+                  return (
+                    <li
+                      key={row.id}
+                      className="cursor-default rounded-[16px] bg-clay-100 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-clay-200 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
+                    >
+                      {/* Mobile: 2 blok — badge atas, nama+harga bawah */}
+                      <div className="flex flex-col gap-1.5 sm:hidden">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center">
+                            {row.category && (
+                              <CategoryBadge
+                                name={row.category.name}
+                                color={row.category.color}
+                              />
+                            )}
+                          </div>
+                          <span
+                            className={`shrink-0 rounded-pill bg-surface px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
+                          >
+                            {daysLabel}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block truncate text-sm font-medium">
+                            {row.name}
+                          </span>
+                          <span className="mt-0.5 block text-lg font-bold text-text tabular-nums">
+                            {formatIdr(row.price)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Desktop: satu baris */}
+                      <div className="hidden items-center justify-between gap-3 sm:flex">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="truncate text-sm font-medium">
+                            {row.name}
+                          </span>
+                          {row.category && (
+                            <CategoryBadge
+                              name={row.category.name}
+                              color={row.category.color}
+                            />
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-3 tabular-nums">
+                          <span className="text-base font-semibold text-text">
+                            {formatIdr(row.price)}
+                          </span>
+                          <span
+                            className={`min-w-[5.5rem] rounded-pill bg-surface px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
+                          >
+                            {daysLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ),
