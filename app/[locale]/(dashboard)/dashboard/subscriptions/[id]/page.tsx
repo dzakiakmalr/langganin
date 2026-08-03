@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import SubscriptionEditClient from "@/components/SubscriptionEditClient";
+
 type PageProps = {
   params: Promise<{ locale: string; id: string }>;
 };
@@ -14,17 +16,9 @@ export async function generateMetadata({
 }
 
 export default async function SubscriptionDetailPage({ params }: PageProps) {
-  const { locale, id } = await params;
+  const p = await params;
+  const { locale } = p;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "SubscriptionDetail" });
 
-  return (
-    <section className="w-full max-w-4xl">
-      <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
-      <p className="mt-3 text-text-muted">{t("description")}</p>
-      <p className="mt-4 text-sm text-text-muted">
-        {t("idLabel")} <span className="font-medium text-text">{id}</span>
-      </p>
-    </section>
-  );
+  return <SubscriptionEditClient id={p.id} />;
 }

@@ -27,7 +27,7 @@ export default function ChartPie({ data }: ChartPieProps) {
                 dx="2"
                 dy="4"
                 stdDeviation="6"
-                floodColor="rgba(180,120,90,0.2)"
+                floodColor="rgba(15,23,42,0.18)"
               />
             </filter>
           </defs>
@@ -59,9 +59,9 @@ export default function ChartPie({ data }: ChartPieProps) {
               backdropFilter: "blur(16px) saturate(140%)",
               WebkitBackdropFilter: "blur(16px) saturate(140%)",
               borderRadius: "16px",
-              border: "1px solid rgba(255,255,255,0.4)",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-              color: "#2B2420",
+              border: "1px solid rgba(255,255,255,0.75)",
+              boxShadow: "0 8px 32px rgba(15,23,42,0.10)",
+              color: "#1F2024",
               fontSize: "13px",
               fontWeight: 500,
             }}
@@ -87,7 +87,7 @@ export default function ChartPie({ data }: ChartPieProps) {
               </div>
               <span className="ml-3 shrink-0 text-right tabular-nums">
                 <span className="font-semibold text-text">{formatIdr(d.value)}</span>
-                <span className="ml-1.5 rounded-pill bg-clay-surface/60 px-1.5 py-0.5 text-xs text-text-muted">
+                <span className="ml-1.5 rounded-pill bg-clay-100 px-1.5 py-0.5 text-xs text-text-muted">
                   {pct}%
                 </span>
               </span>

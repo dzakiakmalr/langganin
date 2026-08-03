@@ -28,7 +28,7 @@ export default async function LoginPage({ params }: PageProps) {
         {t("noAccount")}{" "}
         <Link
           href="/register"
-          className="font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
+          className="font-medium text-brand-500 underline underline-offset-4 hover:text-brand-600"
         >
           {t("registerLink")}
         </Link>

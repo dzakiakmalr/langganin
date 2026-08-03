@@ -2,122 +2,181 @@
 
 /*
  * Design tokens — 04-DESIGN-SYSTEM.md §2–§5.
- * --color-clay-surface deepened to #F1E2D0 (was #F5EEE3) so cards
- * read as a distinct layer against --color-bg (#FBF6EF).
+ *
+ * Direction: warm-neutral gray (not cream) so the terracotta brand color
+ * actually anchors the eye spatially — it now lives in a single radial
+ * glow behind the glass panels, not in every clay surface or shadow.
+ *
+ * Hierarchy (4 distinct layers, no shared hue):
+ *   L1 page   — bg            (warm-neutral gray)
+ *   L2 clay   — clay-100/200  (interactive, puffy)
+ *   L3 card   — surface       (white, raised)
+ *   L4 glass  — glass-fill    (translucent, floats above)
  */
 @theme {
-  --color-bg: #fbf6ef;
-  --color-bg-gradient-a: #ffd9c2;
-  --color-bg-gradient-b: #ffeee3;
-  --color-clay-surface: #f1e2d0;
-  --color-primary: #d97757;
-  --color-primary-hover: #c9694a;
-  --color-primary-tint: #f3c4ac;
-  --color-text: #2b2420;
-  --color-text-muted: #7a6f63;
-  --color-success: #4e9b6d;
-  --color-warning: #d9a441;
-  --color-danger: #c1503f;
-  --color-glass-fill: rgba(255, 255, 255, 0.55);
-  --color-glass-border: rgba(255, 255, 255, 0.45);
+  /* ── Brand (terracotta — preserved, slightly retuned for pop) ── */
+  --color-brand-50:  #fbe4d8;
+  --color-brand-100: #f7d4c2;
+  --color-brand-400: #ee8a66;
+  --color-brand-500: #e26b43;
+  --color-brand-600: #c95a36;
+  --color-brand-glow: rgba(226, 107, 67, 0.18);
 
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* ── Backgrounds (warm-neutral gray, not cream) ── */
+  --color-bg:          #f2efec;
+  --color-bg-elevated: #eae6e0;
+
+  /* ── Surfaces (white + barely-warm white) ── */
+  --color-surface:      #ffffff;
+  --color-surface-soft: #faf8f6;
+
+  /* ── Clay (interactive layer — closer to bg than beige was) ── */
+  --color-clay-100: #f4f1ed;
+  --color-clay-200: #ece7e1;
+
+  /* ── Text (neutral, slight warmth) ── */
+  --color-text:        #1f2024;
+  --color-text-muted:  #5c5a57;
+  --color-text-subtle: #8c8884;
+
+  /* ── Status (deeper — passes AA on #FFFFFF) ── */
+  --color-success: #2f8f5e;
+  --color-warning: #c77b1e;
+  --color-danger:  #b43c2c;
+  --color-info:    #3d6fcc;
+
+  /* ── Glass (real translucent, visible edge highlight) ── */
+  --color-glass-fill:   rgba(255, 255, 255, 0.62);
+  --color-glass-border: rgba(255, 255, 255, 0.75);
+
+  /* ── Typography ── */
+  --font-sans:    var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-space), var(--font-jakarta), ui-sans-serif,
     system-ui, sans-serif;
 
+  /* ── Radii ── */
   --radius-card: 24px;
   --radius-pill: 9999px;
+
+  /* ── Shadows (neutral slate, not warm) ── */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.08),
+               0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.10),
+               0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
-/* ── Page background ─────────────────────────────────────────────── */
+/* ── Page background — warm-neutral gray with brand-glow blob ─────── */
 @utility bg-page {
   background: radial-gradient(
     ellipse 80% 60% at 30% 20%,
-    rgba(255, 248, 240, 1) 0%,
-    rgba(251, 246, 239, 1) 60%,
-    rgba(250, 240, 228, 1) 100%
+    rgba(245, 242, 239, 1) 0%,
+    rgba(242, 239, 236, 1) 60%,
+    rgba(238, 234, 230, 1) 100%
   );
   background-attachment: fixed;
 }
 
-/* ── Clay card surface gradient ────────────────────────────────────── */
+/* ── Clay gradient — barely-warm white, not beige ──────────────────── */
 @utility clay-gradient {
-  background: linear-gradient(135deg, #f8f1e6 0%, #f2e9da 100%);
+  background: linear-gradient(135deg, #f8f6f4 0%, #f1edea 100%);
 }
 
-/* ── Clay card shadow — permanent card containers ──────────────────── */
-.clay-card {
+/* ── Clay card shadow (puffy: white inner + neutral dark) ──────────── */
+@utility shadow-clay {
   box-shadow:
-    -8px -8px 18px rgba(255, 255, 255, 0.9),
-    10px 10px 26px rgba(166, 100, 68, 0.35);
+    -6px -6px 16px rgba(255, 255, 255, 0.85),
+     8px 8px 22px rgba(15, 23, 42, 0.08);
 }
-.clay-card:hover {
+@utility shadow-clay-hover {
   box-shadow:
-    -9px -9px 20px rgba(255, 255, 255, 0.9),
-    12px 12px 30px rgba(166, 100, 68, 0.4);
+    -7px -7px 18px rgba(255, 255, 255, 0.9),
+    10px 10px 26px rgba(15, 23, 42, 0.10);
 }
-.clay-card:active {
+@utility shadow-clay-active {
   box-shadow:
-    inset 5px 5px 12px rgba(166, 100, 68, 0.3),
-    inset -5px -5px 12px rgba(255, 255, 255, 0.7);
+    inset 4px 4px 10px rgba(15, 23, 42, 0.07),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.7);
 }
 
-/* ── Clay row hover / press (renewal list rows — flat rest state) ──── */
+/* ── Clay row hover / press (renewal list rows) ────────────────────── */
 @utility clay-row-hover {
   box-shadow:
     -4px -4px 10px rgba(255, 255, 255, 0.85),
-    5px 5px 14px rgba(166, 100, 68, 0.25);
+     5px 5px 14px rgba(15, 23, 42, 0.06);
 }
-
 @utility clay-row-press {
   box-shadow:
-    inset 3px 3px 8px rgba(166, 100, 68, 0.25),
-    inset -3px -3px 8px rgba(255, 255, 255, 0.6);
+    inset 3px 3px 8px rgba(15, 23, 42, 0.06),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.7);
 }
 
 /* ── Pressed state for sidebar active nav ──────────────────────────── */
 @utility shadow-pressed {
   box-shadow:
-    inset 3px 3px 8px rgba(180, 120, 90, 0.2),
+    inset 3px 3px 8px rgba(15, 23, 42, 0.06),
     inset -2px -2px 6px rgba(255, 255, 255, 0.7);
 }
 
 /* ── Glass panel — sidebar, top bar, modals, command palette ────────── */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+@utility glass-panel {
+  background: var(--color-glass-fill);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--color-glass-border);
+}
+@utility glass-panel-lg {
+  background: var(--color-glass-fill);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid var(--color-glass-border);
+}
+@utility glass-panel-sm {
+  background: var(--color-glass-fill);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid var(--color-glass-border);
 }
 
-/* ── Gradient blobs behind glass surfaces ──────────────────────────── */
-.bg-blob-a {
+/* ── Brand glow — the signature: terracotta blob behind glass ─────── */
+@utility bg-brand-glow {
+  background: radial-gradient(
+    circle,
+    var(--color-brand-glow) 0%,
+    transparent 70%
+  );
+}
+
+/* ── Backdrop blob layers (the old orange/peach pair, now neutral) ── */
+@utility bg-blob-a {
   position: fixed;
   top: -10%;
   left: -10%;
   width: 60vw;
   height: 60vw;
-  background: radial-gradient(circle, #ffd9c2 0%, transparent 70%);
+  background: var(--color-brand-glow);
   filter: blur(60px);
-  opacity: 0.6;
   z-index: 0;
   pointer-events: none;
 }
-
-.bg-blob-b {
+@utility bg-blob-b {
   position: fixed;
   bottom: -15%;
   right: -10%;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, #ffeee3 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(234, 230, 224, 0.55) 0%,
+    transparent 70%
+  );
   filter: blur(60px);
-  opacity: 0.5;
   z-index: 0;
   pointer-events: none;
 }
 
-/* ── Loading skeleton shimmer ──────────────────────────────────────── */
+/* ── Loading skeleton shimmer (uses clay-200 for contrast on white) ─ */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -130,13 +189,13 @@
 @utility animate-shimmer {
   background: linear-gradient(
     105deg,
-    var(--color-clay-surface) 0%,
-    var(--color-clay-surface) 38%,
-    rgba(255, 255, 255, 0.5) 44%,
-    rgba(255, 255, 255, 0.35) 50%,
-    rgba(255, 255, 255, 0.5) 56%,
-    var(--color-clay-surface) 62%,
-    var(--color-clay-surface) 100%
+    var(--color-clay-200) 0%,
+    var(--color-clay-200) 38%,
+    rgba(255, 255, 255, 0.7) 44%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.7) 56%,
+    var(--color-clay-200) 62%,
+    var(--color-clay-200) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;

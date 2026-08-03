@@ -4,7 +4,7 @@ type CategoryBadgeProps = {
 };
 
 export default function CategoryBadge({ name, color }: CategoryBadgeProps) {
-  const hex = color ?? "#7A6F63";
+  const hex = color ?? "#8C8884";
 
   return (
     <span

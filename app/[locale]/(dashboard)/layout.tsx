@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 
 import { SidebarProvider } from "@/components/sidebar-context";
+import { SubscriptionsProvider } from "@/components/SubscriptionsProvider";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
@@ -16,13 +17,15 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="relative z-10 flex min-w-0 flex-1 flex-col bg-page">
-          <Topbar />
-          <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+      <SubscriptionsProvider>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <div className="relative z-10 flex min-w-0 flex-1 flex-col bg-page">
+            <Topbar />
+            <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+          </div>
         </div>
-      </div>
+      </SubscriptionsProvider>
     </SidebarProvider>
   );
 }

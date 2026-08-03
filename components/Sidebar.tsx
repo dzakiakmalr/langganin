@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Bell,
   CalendarDays,
   LayoutDashboard,
   ListChecks,
@@ -14,6 +15,7 @@ import {
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useSidebar } from "@/components/sidebar-context";
+import { useSubscriptions } from "@/components/SubscriptionsProvider";
 
 const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "dashboard", Icon: LayoutDashboard },
@@ -21,6 +23,11 @@ const NAV_ITEMS = [
     href: "/dashboard/subscriptions",
     labelKey: "subscriptions",
     Icon: ListChecks,
+  },
+  {
+    href: "/dashboard/notifications",
+    labelKey: "notifications",
+    Icon: Bell,
   },
   {
     href: "/dashboard/calendar",
@@ -41,9 +48,11 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const t = useTranslations("Nav");
+  const tn = useTranslations("Notifications");
   const pathname = usePathname();
   const { mobileOpen, closeMobile } = useSidebar();
   const [collapsed, setCollapsed] = useState(false);
+  const { unreadCount } = useSubscriptions();
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === href;
@@ -67,9 +76,11 @@ export default function Sidebar() {
           collapsed ? "w-16" : "w-64"
         }`}
       >
+        {/* Brand-glow blob behind the glass — the signature */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg-gradient-a to-bg-gradient-b opacity-85"
+          className="pointer-events-none absolute -top-1/3 -left-1/4 h-3/4 w-3/4 bg-brand-glow"
+          style={{ filter: "blur(60px)" }}
         />
 
         <div className="glass-panel flex flex-1 flex-col rounded-none border-l-0">
@@ -108,25 +119,46 @@ export default function Sidebar() {
 
           <nav className="flex-1 px-2 py-4">
             <ul className="flex flex-col gap-1">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={closeMobile}
-                    className={`flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                      isActive(item.href)
-                        ? "bg-clay-surface/80 text-primary font-semibold shadow-pressed"
-                        : "text-text hover:bg-white/20 hover:text-text"
-                    } ${collapsed ? "justify-center" : ""}`}
-                    title={collapsed ? t(item.labelKey) : undefined}
-                  >
-                    <item.Icon size={18} className="shrink-0" />
-                    {!collapsed && (
-                      <span className="truncate">{t(item.labelKey)}</span>
-                    )}
-                  </Link>
-                </li>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const showBadge = item.labelKey === "notifications" && unreadCount > 0;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={closeMobile}
+                      className={`flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                        isActive(item.href)
+                          ? "bg-clay-100 text-brand-600 font-semibold shadow-pressed"
+                          : "text-text hover:bg-white/20 hover:text-text"
+                      } ${collapsed ? "justify-center" : ""}`}
+                      title={collapsed ? t(item.labelKey) : undefined}
+                    >
+                      <item.Icon size={18} className="shrink-0" />
+                      {!collapsed && (
+                        <>
+                          <span className="truncate flex-1">
+                            {t(item.labelKey)}
+                          </span>
+                          {showBadge && (
+                            <span
+                              aria-label={tn("unreadBadge", { count: unreadCount })}
+                              className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand-500 px-1.5 text-[10px] font-bold tabular-nums text-white"
+                            >
+                              {unreadCount > 9 ? "9+" : unreadCount}
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {collapsed && showBadge && (
+                        <span
+                          aria-hidden
+                          className="absolute right-1 top-1 h-2 w-2 rounded-full bg-brand-500"
+                        />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 

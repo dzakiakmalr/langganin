@@ -98,7 +98,7 @@ const paymentMethods = [
   },
   {
     label: "Bank Transfer",
-    color: "#7A6F63",
+    color: "#5C5A57",
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
         <rect x="3" y="12" width="18" height="8" rx="1.5" fill="#7A6F63" />
@@ -123,24 +123,24 @@ export default async function LandingPage({
       <LandingNav locale={locale} />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
-      <section className="relative flex min-h-[75dvh] items-center justify-center overflow-hidden px-4 py-10 sm:py-14">
-        {/* Decorative blobs */}
+      <section className="relative flex min-h-[75dvh] items-center justify-center overflow-hidden px-4 pb-10 pt-16 sm:pb-14 sm:pt-20">
+        {/* Decorative blobs — brand-glow signature + neutral wash */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-1/3 -left-1/4 h-[70vh] w-[70vh] rounded-full opacity-40 blur-[100px]"
-          style={{ background: "radial-gradient(circle, #FFD9C2 0%, transparent 70%)" }}
+          className="pointer-events-none absolute -top-1/3 -left-1/4 h-[70vh] w-[70vh] rounded-full opacity-60 blur-[100px]"
+          style={{ background: "radial-gradient(circle, rgba(226,107,67,0.22) 0%, transparent 70%)" }}
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-1/3 -right-1/4 h-[60vh] w-[60vh] rounded-full opacity-30 blur-[100px]"
-          style={{ background: "radial-gradient(circle, #FFEEE3 0%, transparent 70%)" }}
+          className="pointer-events-none absolute -bottom-1/3 -right-1/4 h-[60vh] w-[60vh] rounded-full opacity-50 blur-[100px]"
+          style={{ background: "radial-gradient(circle, rgba(234,230,224,0.6) 0%, transparent 70%)" }}
         />
 
         {/* macOS window */}
         <div className="relative w-full max-w-3xl">
-          <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/55 shadow-2xl shadow-black/10 backdrop-blur-2xl saturate-180">
+          <div className="overflow-hidden rounded-2xl border border-white/70 bg-white/62 shadow-lg backdrop-blur-2xl saturate-180">
             {/* Title bar */}
-            <div className="flex items-center gap-3 border-b border-white/20 bg-gradient-to-r from-white/[0.08] to-white/[0.15] px-5 py-3.5">
+            <div className="flex items-center gap-3 border-b border-white/40 bg-gradient-to-r from-white/[0.12] to-white/[0.20] px-5 py-3.5">
               <div className="flex items-center gap-1.5">
                 <div className="h-3 w-3 rounded-full opacity-80 transition-opacity hover:opacity-100" style={{ backgroundColor: "#FF5F57" }} />
                 <div className="h-3 w-3 rounded-full opacity-80 transition-opacity hover:opacity-100" style={{ backgroundColor: "#FEBC2E" }} />
@@ -163,13 +163,13 @@ export default async function LandingPage({
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <Link
                   href="/register"
-                  className="rounded-pill bg-primary px-7 py-3 text-sm font-bold text-white clay-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
+                  className="rounded-pill bg-brand-500 px-7 py-3 text-sm font-bold text-white shadow-clay transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-clay-hover"
                 >
                   {t("heroCTA")}
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-surface hover:text-text"
+                  className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
                 >
                   {t("heroDemo")}
                 </Link>
@@ -183,8 +183,8 @@ export default async function LandingPage({
       <section className="relative z-10 bg-page px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary-tint text-primary">
+            <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-5 w-5"
@@ -206,8 +206,8 @@ export default async function LandingPage({
                 {t("feature1Desc")}
               </p>
             </div>
-            <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary-tint text-primary">
+            <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-5 w-5"
@@ -228,8 +228,8 @@ export default async function LandingPage({
                 {t("feature2Desc")}
               </p>
             </div>
-            <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary-tint text-primary">
+            <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-5 w-5"
@@ -250,8 +250,8 @@ export default async function LandingPage({
                 {t("feature3Desc")}
               </p>
             </div>
-            <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary-tint text-primary">
+            <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-5 w-5"
@@ -288,8 +288,8 @@ export default async function LandingPage({
       <section className="relative z-10 bg-page px-4 pb-4 sm:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <div className="rounded-card bg-clay-surface/60 p-6 text-center">
-              <p className="font-display text-2xl font-bold text-primary sm:text-3xl">
+            <div className="rounded-card bg-surface p-6 text-center shadow-sm">
+              <p className="font-display text-2xl font-bold text-brand-500 sm:text-3xl">
                 50+
               </p>
               <p className="mt-1 text-sm text-text-muted">
@@ -298,8 +298,8 @@ export default async function LandingPage({
                   : "Subscriptions you can track"}
               </p>
             </div>
-            <div className="rounded-card bg-clay-surface/60 p-6 text-center">
-              <p className="font-display text-2xl font-bold text-primary sm:text-3xl">
+            <div className="rounded-card bg-surface p-6 text-center shadow-sm">
+              <p className="font-display text-2xl font-bold text-brand-500 sm:text-3xl">
                 D-3, D-1
               </p>
               <p className="mt-1 text-sm text-text-muted">
@@ -308,8 +308,8 @@ export default async function LandingPage({
                   : "Reminders before charge hits"}
               </p>
             </div>
-            <div className="rounded-card bg-clay-surface/60 p-6 text-center">
-              <p className="font-display text-2xl font-bold text-primary sm:text-3xl">
+            <div className="rounded-card bg-surface p-6 text-center shadow-sm">
+              <p className="font-display text-2xl font-bold text-brand-500 sm:text-3xl">
                 Rp 0
               </p>
               <p className="mt-1 text-sm text-text-muted">
@@ -334,7 +334,7 @@ export default async function LandingPage({
               <rect width="30" height="10" fill="#FF0000" />
               <rect y="10" width="30" height="10" fill="#FFFFFF" />
             </svg>
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-500">
               {t("indonesiaSubtitle")}
             </p>
           </div>
@@ -366,7 +366,7 @@ export default async function LandingPage({
       {/* ── CTA ──────────────────────────────────────────────────── */}
       <section className="relative z-10 bg-page px-4 pb-24 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="rounded-card clay-gradient p-10 clay-card sm:p-14">
+          <div className="rounded-card bg-surface p-10 shadow-lg sm:p-14">
             <h2 className="font-display text-2xl font-bold text-text sm:text-3xl">
               {locale === "id"
                 ? "Siap berhenti kaget sama tagihan?"
@@ -380,13 +380,13 @@ export default async function LandingPage({
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-pill bg-primary px-8 py-3 text-sm font-bold text-white clay-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
+                className="rounded-pill bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-clay transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-clay-hover"
               >
                 {t("heroCTA")}
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-surface hover:text-text"
+                className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
               >
                 {t("heroDemo")}
               </Link>
@@ -396,7 +396,7 @@ export default async function LandingPage({
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t border-clay-surface px-4 py-10 sm:px-6">
+      <footer className="relative z-10 border-t border-clay-100 px-4 py-10 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
             <img src="/LN.png" alt="Langganin" className="h-6 w-6 opacity-60" />

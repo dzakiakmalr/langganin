@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import NotificationBell from "@/components/NotificationBell";
 import { Link } from "@/i18n/navigation";
 import { useSidebar } from "@/components/sidebar-context";
 
@@ -18,7 +19,7 @@ export default function Topbar() {
           type="button"
           aria-label="Open navigation menu"
           onClick={toggleMobile}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-white/20 hover:text-text"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-white/40 hover:text-text"
         >
           <Menu size={20} />
         </button>
@@ -33,6 +34,7 @@ export default function Topbar() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
+        <NotificationBell />
         <LanguageSwitcher />
         <span className="hidden text-sm text-text-muted sm:block">
           {t("greeting")}
@@ -40,7 +42,7 @@ export default function Topbar() {
         {/* Clay avatar pebble */}
         <span
           aria-hidden
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-tint font-display text-sm font-bold text-text clay-card"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-bold text-text shadow-clay"
         >
           L
         </span>

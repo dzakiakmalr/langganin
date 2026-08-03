@@ -1,4 +1,4 @@
-import type messages from "./messages/id.json";
+import type messages from "./lib/messages/id.json";
 
 // Type-safe message keys for next-intl (id.json is the source of truth).
 // Note: Locale is intentionally not augmented — Next.js's generated route

@@ -6,7 +6,7 @@ type SummaryCardProps = {
 
 export default function SummaryCard({ title, value, subtitle }: SummaryCardProps) {
   return (
-    <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
+      <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
       <p className="text-sm text-text-muted">{title}</p>
       <p className="mt-2 font-display text-3xl font-bold tracking-tight tabular-nums">
         {value}

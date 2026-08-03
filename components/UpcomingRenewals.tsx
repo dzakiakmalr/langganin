@@ -78,7 +78,7 @@ export default function UpcomingRenewals({
   if (all.length === 0) return null;
 
   return (
-    <div className="rounded-card clay-gradient p-6 clay-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-[2px]">
+    <div className="rounded-card bg-surface p-6 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]">
       <h2 className="font-display text-lg font-bold">{labels.title}</h2>
       {[within7, within30].map(
         (rows, idx) =>
@@ -91,7 +91,7 @@ export default function UpcomingRenewals({
                 {rows.map((row) => (
                   <li
                     key={row.id}
-                    className="flex cursor-default items-center justify-between gap-3 rounded-[16px] bg-white/20 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-white/30 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
+                    className="flex cursor-default items-center justify-between gap-3 rounded-[16px] bg-clay-100 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-clay-200 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="truncate text-sm font-medium">
@@ -109,7 +109,7 @@ export default function UpcomingRenewals({
                         {formatIdr(row.price)}
                       </span>
                       <span
-                        className={`min-w-[5.5rem] rounded-pill bg-clay-surface/60 px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
+                        className={`min-w-[5.5rem] rounded-pill bg-surface px-2.5 py-0.5 text-right text-xs font-bold ${daysColor(row.daysUntil)}`}
                       >
                         {row.daysUntil <= 0
                           ? labels.today

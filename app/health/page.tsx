@@ -36,12 +36,12 @@ export default async function HealthPage() {
         <h1 className="font-display text-3xl font-bold">Health Check</h1>
         <p className="mt-3 text-text-muted">
           Data di bawah ini diambil secara live dari route handler{" "}
-          <code className="rounded bg-clay-surface px-1.5 py-0.5 text-sm text-text">
+          <code className="rounded bg-clay-100 px-1.5 py-0.5 text-sm text-text">
             /api/health
           </code>{" "}
           pada setiap request — bukan string statis.
         </p>
-        <dl className="mt-6 rounded-card bg-clay-surface p-6">
+        <dl className="mt-6 rounded-card bg-surface p-6 shadow-sm">
           <div className="flex items-baseline justify-between gap-4">
             <dt className="text-sm text-text-muted">Status</dt>
             <dd className="font-medium text-success">{health.status}</dd>
