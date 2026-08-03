@@ -139,6 +139,15 @@
   border: 1px solid var(--color-glass-border);
 }
 
+/* ── Mobile drawer — near-solid base so nav text stays readable over
+     dense content; the desktop sidebar keeps the lighter glass-panel. ── */
+@utility glass-drawer {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
 /* ── Brand glow — the signature: terracotta blob behind glass ─────── */
 @utility bg-brand-glow {
   background: radial-gradient(

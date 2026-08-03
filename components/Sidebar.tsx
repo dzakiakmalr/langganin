@@ -64,7 +64,7 @@ export default function Sidebar() {
       {mobileOpen && (
         <div
           aria-hidden
-          className="fixed inset-0 z-20 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-20 bg-black/50 lg:hidden"
           onClick={closeMobile}
         />
       )}
@@ -83,7 +83,7 @@ export default function Sidebar() {
           style={{ filter: "blur(60px)" }}
         />
 
-        <div className="glass-panel flex flex-1 flex-col rounded-none border-l-0">
+        <div className="glass-drawer flex flex-1 flex-col rounded-none border-l-0 lg:glass-panel">
           {/* Brand row */}
           {collapsed ? (
             <div className="flex h-16 items-center justify-center px-3">
