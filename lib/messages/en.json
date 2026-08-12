@@ -13,7 +13,8 @@
     "tagline": "v0.1 — app skeleton"
   },
   "Topbar": {
-    "searchPlaceholder": "Search subscriptions… (Cmd+K — coming soon)",
+    "searchPlaceholder": "Search subscriptions…",
+    "searchHint": "Press Enter to see all results",
     "greeting": "Hi, User"
   },
   "LanguageSwitcher": {
@@ -91,6 +92,16 @@
     "description": "All your subscriptions — with search, category & status filters, and an add-subscription button — will live on this page.",
     "searchPlaceholder": "Search subscriptions…",
     "addButton": "Add Subscription",
+    "editButton": "Edit",
+    "deleteButton": "Delete",
+    "bulkSelect": "Select multiple",
+    "bulkSelected": "{count} selected",
+    "bulkSelectAll": "Select all",
+    "bulkDeselectAll": "Deselect all",
+    "bulkClear": "Clear",
+    "bulkDelete": "Delete selected",
+    "bulkDeleteTitle": "Delete {count} subscriptions?",
+    "bulkDeleteBody": "This action cannot be undone. {count} subscriptions will be permanently deleted.",
     "filterCategory": "All Categories",
     "filterStatus": "All Statuses",
     "noResults": "No matching subscriptions.",

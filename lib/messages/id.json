@@ -13,7 +13,8 @@
     "tagline": "v0.1 — app skeleton"
   },
   "Topbar": {
-    "searchPlaceholder": "Cari langganan… (Cmd+K — segera hadir)",
+    "searchPlaceholder": "Cari langganan…",
+    "searchHint": "Tekan Enter untuk melihat semua hasil",
     "greeting": "Halo, Pengguna"
   },
   "LanguageSwitcher": {
@@ -91,6 +92,16 @@
     "description": "Daftar semua langgananmu — lengkap dengan pencarian, filter kategori & status, dan tombol tambah langganan — akan ada di halaman ini.",
     "searchPlaceholder": "Cari langganan…",
     "addButton": "Tambah Langganan",
+    "editButton": "Edit",
+    "deleteButton": "Hapus",
+    "bulkSelect": "Pilih banyak",
+    "bulkSelected": "{count} dipilih",
+    "bulkSelectAll": "Pilih semua",
+    "bulkDeselectAll": "Batalkan semua",
+    "bulkClear": "Bersihkan",
+    "bulkDelete": "Hapus yang dipilih",
+    "bulkDeleteTitle": "Hapus {count} langganan?",
+    "bulkDeleteBody": "Tindakan ini tidak bisa dibatalkan. {count} langganan akan dihapus permanen.",
     "filterCategory": "Semua Kategori",
     "filterStatus": "Semua Status",
     "noResults": "Tidak ada langganan yang cocok.",

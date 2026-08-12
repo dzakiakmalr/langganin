@@ -54,13 +54,6 @@ export default function SubscriptionEditClient({ id }: Props) {
         <h1 className="font-display text-2xl font-bold text-text">
           {t("editTitle")}
         </h1>
-        <button
-          type="button"
-          onClick={() => setShowDelete(true)}
-          className="rounded-pill px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger/10"
-        >
-          {t("deleteButton")}
-        </button>
       </div>
 
       <div className="mt-6 rounded-card bg-surface p-6 shadow-md">
@@ -86,6 +79,7 @@ export default function SubscriptionEditClient({ id }: Props) {
           categories={categories.map((c) => ({ id: c.id, name: c.name }))}
           onSubmit={handleUpdate}
           onCancel={() => router.push("/dashboard/subscriptions")}
+          onDelete={() => setShowDelete(true)}
         />
       </div>
 

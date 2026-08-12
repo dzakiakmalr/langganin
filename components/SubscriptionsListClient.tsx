@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { differenceInDays, startOfDay } from "date-fns";
-import { LayoutGrid, List, Settings2 } from "lucide-react";
+import { CheckSquare, LayoutGrid, List, Settings2, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +11,7 @@ import SubscriptionCard from "@/components/SubscriptionCard";
 import SubscriptionRow from "@/components/SubscriptionRow";
 import SubscriptionForm from "@/components/SubscriptionForm";
 import CategoryManagerModal from "@/components/CategoryManagerModal";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
 import type { Subscription } from "@/types/subscription";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
@@ -85,16 +86,26 @@ function getDateBucket(date: Date, today: Date): DateBucket {
   return "later";
 }
 
-export default function SubscriptionsListClient() {
+export default function SubscriptionsListClient({
+  initialQuery,
+}: {
+  /** Pre-fill search from the topbar search (?q=...). */
+  initialQuery?: string;
+}) {
   const t = useTranslations("Subscriptions");
   const tf = useTranslations("SubscriptionForm");
-  const { subscriptions, categories, addSubscription } = useSubscriptions();
+  const { subscriptions, categories, addSubscription, deleteSubscription } =
+    useSubscriptions();
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialQuery ?? "");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
 
   const [viewMode, setViewMode] = useState<ViewMode>("card");
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
@@ -120,6 +131,20 @@ export default function SubscriptionsListClient() {
   useEffect(() => {
     if (hydrated) writeStored(STORAGE_KEY_GROUP, groupBy);
   }, [groupBy, hydrated]);
+
+  // Prune stale selections when subscriptions change (e.g. single delete).
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const valid = new Set(subscriptions.map((s) => s.id));
+      const next = new Set([...prev].filter((id) => valid.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [subscriptions]);
+
+  // Sync search when the topbar search navigates here with a new ?q=.
+  useEffect(() => {
+    if (initialQuery !== undefined) setSearch(initialQuery);
+  }, [initialQuery]);
 
   const today = useMemo(() => startOfDay(new Date()), []);
 
@@ -217,6 +242,31 @@ export default function SubscriptionsListClient() {
   const handleAdd = (data: SubscriptionInput) => {
     addSubscription(data);
     setShowAddModal(false);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((s) => selectedIds.has(s.id));
+
+  const toggleSelectAll = () => {
+    setSelectedIds(allFilteredSelected ? new Set() : new Set(filtered.map((s) => s.id)));
+  };
+
+  const handleBulkDelete = () => {
+    selectedIds.forEach((id) => deleteSubscription(id));
+    clearSelection();
+    setSelectMode(false);
+    setShowBulkDelete(false);
   };
 
   const isList = viewMode === "list";
@@ -323,6 +373,22 @@ export default function SubscriptionsListClient() {
 
         <button
           type="button"
+          aria-pressed={selectMode}
+          onClick={() => {
+            if (selectMode) clearSelection();
+            setSelectMode((v) => !v);
+          }}
+          className={`inline-flex items-center gap-1.5 rounded-pill px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 ${
+            selectMode
+              ? "bg-brand-500 text-white shadow-clay"
+              : "bg-clay-100 text-text-muted hover:bg-clay-200 hover:text-text"
+          }`}
+        >
+          <CheckSquare size={14} aria-hidden />
+          <span>{t("bulkSelect")}</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setShowCategoryManager(true)}
           className="hidden items-center gap-1.5 rounded-pill bg-clay-100 px-3 py-2 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-200 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 sm:inline-flex"
         >
@@ -383,6 +449,9 @@ export default function SubscriptionsListClient() {
                         categoryName={cat?.name}
                         categoryColor={cat?.color}
                         brandColor={brand?.color}
+                        selectable={selectMode}
+                        selected={selectedIds.has(sub.id)}
+                        onToggleSelect={() => toggleSelect(sub.id)}
                       />
                     );
                   })}
@@ -399,6 +468,9 @@ export default function SubscriptionsListClient() {
                         categoryName={cat?.name}
                         categoryColor={cat?.color}
                         brandColor={brand?.color}
+                        selectable={selectMode}
+                        selected={selectedIds.has(sub.id)}
+                        onToggleSelect={() => toggleSelect(sub.id)}
                       />
                     );
                   })}
@@ -438,6 +510,57 @@ export default function SubscriptionsListClient() {
       <CategoryManagerModal
         open={showCategoryManager}
         onClose={() => setShowCategoryManager(false)}
+      />
+
+      {/* Bulk action bar */}
+      {selectMode && selectedIds.size > 0 && (
+        <>
+          <div aria-hidden className="h-16" />
+          <div className="fixed inset-x-0 bottom-4 z-40 px-4">
+            <div className="glass-panel mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-pill px-4 py-2.5 shadow-lg">
+              <span className="text-sm font-semibold tabular-nums text-text">
+                {t("bulkSelected", { count: selectedIds.size })}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleSelectAll}
+                  className="rounded-pill px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+                >
+                  {allFilteredSelected
+                    ? t("bulkDeselectAll")
+                    : t("bulkSelectAll")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowBulkDelete(true)}
+                  className="inline-flex items-center gap-1.5 rounded-pill bg-danger px-4 py-1.5 text-xs font-bold text-white transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
+                >
+                  <Trash2 size={14} aria-hidden />
+                  {t("bulkDelete")}
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("bulkClear")}
+                  onClick={clearSelection}
+                  className="flex h-8 w-8 items-center justify-center rounded-pill text-text-muted transition-colors hover:bg-clay-100 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+                >
+                  <X size={15} aria-hidden />
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <ConfirmDialog
+        open={showBulkDelete}
+        title={t("bulkDeleteTitle", { count: selectedIds.size })}
+        body={t("bulkDeleteBody", { count: selectedIds.size })}
+        confirmLabel={t("deleteButton")}
+        cancelLabel={tf("cancel")}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setShowBulkDelete(false)}
       />
     </div>
   );

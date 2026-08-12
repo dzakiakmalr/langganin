@@ -5,6 +5,7 @@ import SubscriptionsListClient from "@/components/SubscriptionsListClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 };
 
 export async function generateMetadata({
@@ -15,9 +16,14 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function SubscriptionsPage({ params }: PageProps) {
+export default async function SubscriptionsPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <SubscriptionsListClient />;
+  const { q } = await searchParams;
+
+  return <SubscriptionsListClient initialQuery={q} />;
 }

@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
@@ -49,6 +49,8 @@ type SubscriptionFormProps = {
   categories: { id: string; name: string }[];
   onSubmit: (data: SubscriptionInput) => void;
   onCancel: () => void;
+  /** Show a delete icon button next to Cancel/Save (edit mode). */
+  onDelete?: () => void;
 };
 
 function fieldError(message?: string) {
@@ -62,6 +64,7 @@ export default function SubscriptionForm({
   categories,
   onSubmit,
   onCancel,
+  onDelete,
 }: SubscriptionFormProps) {
   const t = useTranslations("SubscriptionForm");
   const ts = useTranslations("Subscriptions");
@@ -401,7 +404,17 @@ export default function SubscriptionForm({
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex items-center justify-end gap-3 pt-2">
+        {onDelete && (
+          <button
+            type="button"
+            aria-label={ts("deleteButton")}
+            onClick={onDelete}
+            className="mr-auto flex h-10 w-10 items-center justify-center rounded-full text-danger transition-colors hover:bg-danger/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
+          >
+            <Trash2 size={17} aria-hidden />
+          </button>
+        )}
         <button
           type="button"
           onClick={onCancel}
