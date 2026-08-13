@@ -209,3 +209,18 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* ── Chat streaming dot indicator (Analytics AI chat) ─────────────────────── */
+@keyframes chat-dot {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@utility animate-chat-dot {
+  animation: chat-dot 1.2s ease-in-out infinite;
+}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import PlaceholderPage from "@/components/PlaceholderPage";
+import AnalyticsClient from "@/components/AnalyticsClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -18,7 +18,6 @@ export async function generateMetadata({
 export default async function AnalyticsPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "Analytics" });
 
-  return <PlaceholderPage title={t("title")} description={t("description")} />;
+  return <AnalyticsClient />;
 }
