@@ -3,6 +3,7 @@ import {
   createUIMessageStreamResponse,
   streamText,
   type UIMessage,
+  type UIMessageChunk,
 } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -55,6 +56,13 @@ const requestSchema = z.object({
 });
 
 const MAX_CONTEXT_BYTES = 32 * 1024; // 32 KB hard cap on the prompt data
+
+// Some OpenRouter free-tier upstreams emit literal special tokens (e.g.
+// `<pad>`) when a model's generation is empty or gets interrupted. Strip
+// them server-side so garbage never reaches the chat UI — and so the
+// clean text is what gets persisted in message history.
+const SPECIAL_TOKEN_RE =
+  /<(?:\/?s|pad|eos|bos|unk|start_of_turn|end_of_turn|0x[0-9A-Fa-f]{2})>/g;
 
 function errorResponse(
   status: number,
@@ -141,9 +149,26 @@ export async function POST(request: Request): Promise<Response> {
       },
     });
 
-    return createUIMessageStreamResponse({
-      stream: result.toUIMessageStream(),
-    });
+    // Strip literal special tokens (e.g. `<pad>`) from text deltas before
+    // they reach the client — some free OpenRouter upstreams emit them.
+    const stream = result
+      .toUIMessageStream()
+      .pipeThrough(
+        new TransformStream<UIMessageChunk, UIMessageChunk>({
+          transform(chunk, controller) {
+            if (chunk.type === "text-delta") {
+              const delta = chunk.delta.replace(SPECIAL_TOKEN_RE, "");
+              if (delta.length > 0) {
+                controller.enqueue({ ...chunk, delta });
+              }
+            } else {
+              controller.enqueue(chunk);
+            }
+          },
+        }),
+      );
+
+    return createUIMessageStreamResponse({ stream });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to reach OpenRouter";

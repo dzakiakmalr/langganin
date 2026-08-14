@@ -30,13 +30,20 @@ import type { Category, Subscription } from "@/types/subscription";
 /**
  * Default model. Currently the free Gemma 4 26B A4B on OpenRouter.
  *
- * Swap to any other OpenRouter model by changing just this string, e.g.:
+ * Override at runtime without touching code by setting the env var
+ * `OPENROUTER_MODEL` (e.g. on Vercel). Good alternatives:
  *   - "google/gemma-3-27b-it:free"   (fallback if Gemma 4 isn't listed)
  *   - "meta-llama/llama-3.3-70b-instruct:free"
  *   - "qwen/qwen-2.5-72b-instruct:free"
  *   - Any paid model: "anthropic/claude-3.5-sonnet", "openai/gpt-4o", …
+ *
+ * Note: free-tier (`:free`) OpenRouter models route to a mix of third-party
+ * upstream providers depending on server IP/load. Some upstreams occasionally
+ * return literal special tokens (e.g. `<pad>`). Those are stripped in the
+ * route handler (app/api/chat/route.ts) so they never reach the UI.
  */
-export const MODEL_ID = "google/gemma-4-26b-a4b-it:free";
+export const MODEL_ID =
+  process.env.OPENROUTER_MODEL || "google/gemma-4-26b-a4b-it:free";
 
 /** Provider instance — lazy so missing env doesn't crash build. */
 export const chatModel = createOpenRouter({
