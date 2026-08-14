@@ -29,19 +29,6 @@ type MiniCalendarProps = {
 const DAY_NAMES_ID = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const DAY_NAMES_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-type Pm = { id: string; en: string };
-const PM_LABEL: Record<string, Pm> = {
-  credit_card: { id: "Kartu Kredit", en: "Credit Card" },
-  debit_card: { id: "Kartu Debit", en: "Debit Card" },
-  gopay: { id: "GoPay", en: "GoPay" },
-  ovo: { id: "OVO", en: "OVO" },
-  dana: { id: "DANA", en: "DANA" },
-  shopeepay: { id: "ShopeePay", en: "ShopeePay" },
-  qris: { id: "QRIS", en: "QRIS" },
-  bank_transfer: { id: "Transfer Bank", en: "Bank Transfer" },
-  other: { id: "Lainnya", en: "Other" },
-};
-
 function isCalendarEvent(sub: Subscription): boolean {
   return sub.status === "active" || sub.status === "trial";
 }
@@ -301,8 +288,7 @@ export default function MiniCalendar({
             {selectedDayEvents.map((evt) => {
               const { sub, color } = evt;
               const cat = categories.find((c) => c.id === sub.category_id);
-              const pm = PM_LABEL[sub.payment_method] ?? PM_LABEL.other;
-              const pmDisplay = locale === "id" ? pm.id : pm.en;
+              const pmDisplay = sub.payment_method;
               return (
                 <li
                   key={sub.id}

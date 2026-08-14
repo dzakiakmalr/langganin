@@ -17,7 +17,6 @@ import { findBrandByName } from "@/lib/brands/brand-registry";
 // everything from `@/lib/utils/analytics` (single import surface).
 export {
   PAYMENT_METHOD_COLORS,
-  PAYMENT_METHOD_LABELS,
   buildPaymentMethodBreakdown,
   buildSubscriptionRanking,
 } from "@/lib/utils/analytics-extras";

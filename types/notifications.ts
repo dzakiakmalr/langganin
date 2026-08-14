@@ -35,7 +35,10 @@ export const MAX_DAYS_BEFORE = 60;
 
 /** The shape of a single subscription's override (or null = use global). */
 export type SubscriptionOverride = {
+  /** H- days before a renewal (active subscriptions). */
   daysBefore: DaysBefore[];
+  /** H- days before a trial ends (trial subscriptions). */
+  trialDaysBefore: DaysBefore[];
   channels: NotificationChannel[];
 };
 

@@ -18,9 +18,10 @@ export default function Topbar() {
   const ts = useTranslations("Subscriptions");
   const { toggleMobile } = useSidebar();
   const router = useRouter();
-  const { subscriptions } = useSubscriptions();
+  const { subscriptions, profileName } = useSubscriptions();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const displayName = profileName.trim();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -47,7 +48,7 @@ export default function Topbar() {
   };
 
   return (
-    <header className="sticky top-0 z-10 glass-panel flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 glass-panel-strong flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6">
       <div className="flex items-center gap-2 lg:hidden">
         <button
           type="button"
@@ -145,14 +146,14 @@ export default function Topbar() {
         <NotificationBell />
         <LanguageSwitcher />
         <span className="hidden text-sm text-text-muted sm:block">
-          {t("greeting")}
+          {displayName ? t("greetingName", { name: displayName }) : t("greeting")}
         </span>
         {/* Clay avatar pebble */}
         <span
           aria-hidden
           className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-bold text-text shadow-clay"
         >
-          L
+          {(displayName.charAt(0) || "L").toUpperCase()}
         </span>
       </div>
     </header>

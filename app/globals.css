@@ -138,13 +138,21 @@
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid var(--color-glass-border);
 }
-/* Near-solid glass — floating panels over dense content (e.g. the
-   notification dropdown) where translucent glass hurts readability. */
+/* More opaque glass for the top bar — scrolling content shouldn't bleed
+   through behind interactive controls (search, notifications). */
+@utility glass-panel-strong {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+}
+/* Solid glass — floating panels over dense content (e.g. the notification
+   dropdown) where translucent glass lets busy content bleed through. */
 @utility glass-panel-solid {
-  background: rgba(255, 255, 255, 0.94);
+  background: #ffffff;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
 /* ── Mobile drawer — near-solid base so nav text stays readable over

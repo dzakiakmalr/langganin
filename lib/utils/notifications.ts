@@ -7,10 +7,11 @@ import type {
 } from "@/types/notifications";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 
-/** Sensible default: H-7, H-3, H-1. Channels default to email only. */
+/** Sensible default: H-7, H-3, H-1 for renewals and trial ends. Email only. */
 export const DEFAULT_REMINDER_PREFERENCES: ReminderPreferences = {
   global: {
     daysBefore: [7, 3, 1],
+    trialDaysBefore: [7, 3, 1],
     channels: ["email"],
   },
   perSubscription: {},
@@ -41,15 +42,18 @@ export function generateNotifications(
     if (sub.status !== "active" && sub.status !== "trial") continue;
 
     const override = preferences.perSubscription[sub.id];
-    const daysBeforeList = override?.daysBefore ?? preferences.global.daysBefore;
+    const isTrial = sub.status === "trial";
+    // Trials remind before trial end; active subs remind before renewal.
+    const daysBeforeList = isTrial
+      ? override?.trialDaysBefore ?? preferences.global.trialDaysBefore
+      : override?.daysBefore ?? preferences.global.daysBefore;
     if (daysBeforeList.length === 0) continue;
 
     const eventDate = startOfDay(getRelevantDate(sub));
     const daysUntilEvent = differenceInDays(eventDate, today);
     if (daysUntilEvent < 0) continue; // event has passed
 
-    const type: AppNotification["type"] =
-      sub.status === "trial" ? "trial_end" : "renewal";
+    const type: AppNotification["type"] = isTrial ? "trial_end" : "renewal";
     const categoryColor =
       categories.find((c) => c.id === sub.category_id)?.color ?? null;
 

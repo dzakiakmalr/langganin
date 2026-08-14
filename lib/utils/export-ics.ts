@@ -124,18 +124,7 @@ function cycleLabel(sub: Subscription): string {
 }
 
 function paymentLabel(sub: Subscription): string {
-  const map: Record<string, string> = {
-    credit_card: "Kartu Kredit",
-    debit_card: "Kartu Debit",
-    gopay: "GoPay",
-    ovo: "OVO",
-    dana: "DANA",
-    shopeepay: "ShopeePay",
-    qris: "QRIS",
-    bank_transfer: "Transfer Bank",
-    other: "Lainnya",
-  };
-  return map[sub.payment_method] ?? sub.payment_method;
+  return sub.payment_method;
 }
 
 /**

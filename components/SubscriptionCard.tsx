@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { differenceInDays, startOfDay } from "date-fns";
-import { Check, Pencil, Trash2 } from "lucide-react";
+import { Check, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type { Subscription } from "@/types/subscription";
+import { DELETED_RETENTION_DAYS, type Subscription } from "@/types/subscription";
 import CategoryBadge from "@/components/CategoryBadge";
 import BrandLogo from "@/components/BrandLogo";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -53,11 +53,21 @@ export default function SubscriptionCard({
   const t = useTranslations("Subscriptions");
   const td = useTranslations("SubscriptionDetail");
   const router = useRouter();
-  const { deleteSubscription } = useSubscriptions();
+  const { deleteSubscription, restoreSubscription, updateSubscription } =
+    useSubscriptions();
   const [showDelete, setShowDelete] = useState(false);
 
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
+  const isPaused = subscription.status === "paused";
+  const isDeleted = subscription.status === "cancelled";
+  const daysSinceDeleted = subscription.deleted_at
+    ? differenceInDays(today, startOfDay(new Date(subscription.deleted_at)))
+    : 0;
+  const deleteDaysLeft = Math.max(
+    0,
+    DELETED_RETENTION_DAYS - daysSinceDeleted,
+  );
 
   const statusLabelKey: Record<
     string,
@@ -90,9 +100,25 @@ export default function SubscriptionCard({
     setShowDelete(false);
   };
 
+  const handleTogglePause = () => {
+    updateSubscription(subscription.id, {
+      status: isPaused
+        ? subscription.is_trial
+          ? "trial"
+          : "active"
+        : "paused",
+    });
+  };
+
+  const handleRestore = () => {
+    restoreSubscription(subscription.id);
+  };
+
   return (
     <div
-      className="relative rounded-card bg-surface p-5 shadow-md transition-[transform,box-shadow] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px]"
+      className={`relative rounded-card bg-surface p-5 shadow-md transition-[transform,box-shadow,opacity,filter] duration-300 ease-out hover:shadow-lg hover:-translate-y-[2px] ${
+        isPaused || isDeleted ? "opacity-60 grayscale" : ""
+      }`}
       style={{
         background: `linear-gradient(135deg, ${tint} 0%, var(--color-surface) 60%)`,
       }}
@@ -179,10 +205,27 @@ export default function SubscriptionCard({
             </span>
           </p>
         )}
+
+        {isDeleted && (
+          <p className="mt-3 border-t border-clay-100 pt-3 text-xs text-text-muted">
+            {t("deletedHint", { days: deleteDaysLeft })}
+          </p>
+        )}
       </Link>
 
       {/* Action row */}
-      {!selectable && (
+      {!selectable && isDeleted ? (
+        <div className="mt-3 flex items-center gap-2 border-t border-clay-100 pt-3">
+          <button
+            type="button"
+            onClick={handleRestore}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-brand-600 transition-colors hover:bg-brand-100"
+          >
+            <RotateCcw size={14} aria-hidden />
+            {t("restoreButton")}
+          </button>
+        </div>
+      ) : !selectable ? (
         <div className="mt-3 flex items-center gap-2 border-t border-clay-100 pt-3">
           <button
             type="button"
@@ -194,6 +237,14 @@ export default function SubscriptionCard({
           </button>
           <button
             type="button"
+            onClick={handleTogglePause}
+            className="inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
+          >
+            {isPaused ? <Play size={14} aria-hidden /> : <Pause size={14} aria-hidden />}
+            {isPaused ? t("resumeButton") : t("pauseButton")}
+          </button>
+          <button
+            type="button"
             onClick={() => setShowDelete(true)}
             className="ml-auto inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
           >
@@ -201,7 +252,7 @@ export default function SubscriptionCard({
             {t("deleteButton")}
           </button>
         </div>
-      )}
+      ) : null}
 
       <ConfirmDialog
         open={showDelete}

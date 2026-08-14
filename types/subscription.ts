@@ -7,16 +7,10 @@ export type BillingCycle = "weekly" | "monthly" | "yearly" | "custom_days";
 
 export type SubscriptionStatus = "active" | "trial" | "paused" | "cancelled";
 
-export type PaymentMethod =
-  | "credit_card"
-  | "debit_card"
-  | "gopay"
-  | "ovo"
-  | "dana"
-  | "shopeepay"
-  | "qris"
-  | "bank_transfer"
-  | "other";
+export type TrialDurationUnit = "days" | "months" | "years";
+
+/** Days a "cancelled" (recently-deleted) subscription is kept before auto-purge. */
+export const DELETED_RETENTION_DAYS = 14;
 
 export type Subscription = {
   id: string;
@@ -34,11 +28,14 @@ export type Subscription = {
   is_trial: boolean;
   trial_start_date: string | null;
   trial_end_date: string | null;
-  trial_duration_days: number | null;
-  payment_method: PaymentMethod;
+  trial_duration: number | null;
+  trial_duration_unit: TrialDurationUnit;
+  payment_method: string;
   notes: string | null;
   created_at: string; // ISO 8601
   updated_at: string; // ISO 8601
+  /** Set when the subscription is soft-deleted ("cancelled" status). */
+  deleted_at: string | null;
 };
 
 export type Category = {

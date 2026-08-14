@@ -8,11 +8,14 @@ import { Check, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/SubscriptionsProvider";
 import {
   calculateNextBillingDate,
   calculateTrialEndDate,
 } from "@/lib/services/billing-dates";
 import { findBrandByName, buildLogoUrl } from "@/lib/brands/brand-registry";
+import { STANDARD_PAYMENT_METHODS } from "@/lib/payment-methods";
+import { CURRENCIES } from "@/lib/currencies";
 import BrandLogo from "@/components/BrandLogo";
 
 // ── Zod schema ──────────────────────────────────────────────────────────
@@ -25,18 +28,9 @@ const subscriptionSchema = z.object({
   custom_cycle_days: z.coerce.number().positive().nullable(),
   start_date: z.string().min(1, "Tanggal mulai wajib diisi"),
   is_trial: z.boolean().default(false),
-  trial_duration_days: z.coerce.number().positive().nullable(),
-  payment_method: z.enum([
-    "credit_card",
-    "debit_card",
-    "gopay",
-    "ovo",
-    "dana",
-    "shopeepay",
-    "qris",
-    "bank_transfer",
-    "other",
-  ] as const),
+  trial_duration: z.coerce.number().positive().nullable(),
+  trial_duration_unit: z.enum(["days", "months", "years"] as const).default("days"),
+  payment_method: z.string().min(1, "Metode pembayaran wajib diisi"),
   notes: z.string().nullable(),
 });
 
@@ -68,6 +62,25 @@ export default function SubscriptionForm({
 }: SubscriptionFormProps) {
   const t = useTranslations("SubscriptionForm");
   const ts = useTranslations("Subscriptions");
+  const { paymentMethods, defaultCurrency } = useSubscriptions();
+
+  // Dropdown options. Payment: favorites first (standard list as fallback);
+  // the current value is always included so edit mode never blanks a select.
+  const paymentOptions = useMemo(() => {
+    const base =
+      paymentMethods.length > 0
+        ? paymentMethods
+        : [...STANDARD_PAYMENT_METHODS];
+    const current = defaultValues?.payment_method;
+    return current && !base.includes(current) ? [...base, current] : base;
+  }, [paymentMethods, defaultValues?.payment_method]);
+
+  const currencyOptions = useMemo(() => {
+    const current = defaultValues?.currency ?? defaultCurrency;
+    const list = new Set<string>(CURRENCIES);
+    if (current) list.add(current);
+    return Array.from(list);
+  }, [defaultValues?.currency, defaultCurrency]);
 
   const {
     register,
@@ -81,13 +94,14 @@ export default function SubscriptionForm({
       name: defaultValues?.name ?? "",
       category_id: defaultValues?.category_id ?? null,
       price: defaultValues?.price ?? 0,
-      currency: defaultValues?.currency ?? "IDR",
+      currency: defaultValues?.currency ?? defaultCurrency,
       billing_cycle: defaultValues?.billing_cycle ?? "monthly",
       custom_cycle_days: defaultValues?.custom_cycle_days ?? null,
       start_date: defaultValues?.start_date ?? "",
       is_trial: defaultValues?.is_trial ?? false,
-      trial_duration_days: defaultValues?.trial_duration_days ?? null,
-      payment_method: defaultValues?.payment_method ?? "bank_transfer",
+      trial_duration: defaultValues?.trial_duration ?? null,
+      trial_duration_unit: defaultValues?.trial_duration_unit ?? "days",
+      payment_method: defaultValues?.payment_method ?? paymentOptions[0] ?? "",
       notes: defaultValues?.notes ?? null,
     },
   });
@@ -99,22 +113,25 @@ export default function SubscriptionForm({
         name: defaultValues.name ?? "",
         category_id: defaultValues.category_id ?? null,
         price: defaultValues.price ?? 0,
-        currency: defaultValues.currency ?? "IDR",
+        currency: defaultValues.currency ?? defaultCurrency,
         billing_cycle: defaultValues.billing_cycle ?? "monthly",
         custom_cycle_days: defaultValues.custom_cycle_days ?? null,
         start_date: defaultValues.start_date ?? "",
         is_trial: defaultValues.is_trial ?? false,
-        trial_duration_days: defaultValues.trial_duration_days ?? null,
-        payment_method: defaultValues.payment_method ?? "bank_transfer",
+        trial_duration: defaultValues.trial_duration ?? null,
+        trial_duration_unit: defaultValues.trial_duration_unit ?? "days",
+        payment_method: defaultValues.payment_method ?? paymentOptions[0] ?? "",
         notes: defaultValues.notes ?? null,
       });
     }
-  }, [mode, defaultValues, reset]);
+  }, [mode, defaultValues, reset, defaultCurrency, paymentOptions]);
 
   const billingCycle = watch("billing_cycle");
   const isTrial = watch("is_trial");
   const startDate = watch("start_date");
   const watchedName = watch("name");
+  const trialDuration = watch("trial_duration");
+  const trialDurationUnit = watch("trial_duration_unit");
 
   // Live brand detection — updates the preview as the user types
   const detectedBrand = useMemo(
@@ -123,19 +140,25 @@ export default function SubscriptionForm({
   );
 
   const handleFormSubmit = (values: FormValues) => {
-    const nextBilling = calculateNextBillingDate(
-      values.start_date,
-      values.billing_cycle,
-      values.custom_cycle_days,
-    );
-
+    // Trial semantics: the first charge happens AFTER the trial ends — the
+    // trial period is free. So for a trial, next_billing_date == trial end.
     let trialEnd: string | null = null;
-    if (values.is_trial && values.start_date && values.trial_duration_days) {
+    if (values.is_trial && values.start_date && values.trial_duration) {
       trialEnd = calculateTrialEndDate(
         values.start_date,
-        values.trial_duration_days,
+        values.trial_duration,
+        values.trial_duration_unit,
       );
     }
+
+    const nextBilling =
+      values.is_trial && trialEnd
+        ? trialEnd
+        : calculateNextBillingDate(
+            values.start_date,
+            values.billing_cycle,
+            values.custom_cycle_days,
+          );
 
     // Re-resolve at submit in case name was edited since last preview.
     // Curated match → use the registry's clean name. Otherwise fall back
@@ -163,7 +186,8 @@ export default function SubscriptionForm({
       is_trial: values.is_trial,
       trial_start_date: values.is_trial ? values.start_date : null,
       trial_end_date: trialEnd,
-      trial_duration_days: values.is_trial ? values.trial_duration_days : null,
+      trial_duration: values.is_trial ? values.trial_duration : null,
+      trial_duration_unit: values.trial_duration_unit,
       payment_method: values.payment_method,
       notes: values.notes,
       logo_url: logoUrl,
@@ -212,10 +236,6 @@ export default function SubscriptionForm({
             <span className="font-semibold text-text">
               {ts("logoDetected")}
             </span>
-            <span className="text-text-subtle">·</span>
-            <span className="text-text-subtle">
-              {ts("logoSource", { source: detectedBrand.name })}
-            </span>
           </div>
         )}
         {fieldError(errors.name?.message)}
@@ -261,12 +281,17 @@ export default function SubscriptionForm({
           <label htmlFor="sf-currency" className={labelClass}>
             {t("currency")}
           </label>
-          <input
+          <select
             id="sf-currency"
-            type="text"
             {...register("currency")}
-            className={`${inputClass} w-20`}
-          />
+            className={`${selectClass} w-24`}
+          >
+            {currencyOptions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -332,35 +357,46 @@ export default function SubscriptionForm({
       {/* Trial duration (conditional) */}
       {isTrial && (
         <div>
-          <label htmlFor="sf-trial-days" className={labelClass}>
-            {t("trialDurationDays")}
+          <label htmlFor="sf-trial-duration" className={labelClass}>
+            {t("trialDuration")}
           </label>
-          <input
-            id="sf-trial-days"
-            type="number"
-            min="1"
-            placeholder="7"
-            {...register("trial_duration_days")}
-            className={inputClass}
-          />
-          {fieldError(errors.trial_duration_days?.message)}
+          <div className="grid grid-cols-[1fr_auto] gap-3">
+            <input
+              id="sf-trial-duration"
+              type="number"
+              min="1"
+              placeholder="7"
+              {...register("trial_duration")}
+              className={inputClass}
+            />
+            <select
+              {...register("trial_duration_unit")}
+              className={`${selectClass} w-28`}
+            >
+              <option value="days">{t("unitDays")}</option>
+              <option value="months">{t("unitMonths")}</option>
+              <option value="years">{t("unitYears")}</option>
+            </select>
+          </div>
+          {fieldError(errors.trial_duration?.message)}
         </div>
       )}
 
       {/* Preview of computed dates */}
       {startDate && (
         <div className="rounded-[14px] bg-brand-100/40 px-4 py-2.5 text-xs text-text-muted">
-          <p>
-            Perpanjangan berikutnya:{" "}
-            <span className="font-medium text-text">
-              {calculateNextBillingDate(startDate, billingCycle, watch("custom_cycle_days"))}
-            </span>
-          </p>
-          {isTrial && watch("trial_duration_days") && (
-            <p className="mt-0.5">
+          {isTrial && trialDuration ? (
+            <p>
               Trial berakhir:{" "}
               <span className="font-medium text-text">
-                {calculateTrialEndDate(startDate, watch("trial_duration_days") ?? 7)}
+                {calculateTrialEndDate(startDate, trialDuration, trialDurationUnit)}
+              </span>
+            </p>
+          ) : (
+            <p>
+              Perpanjangan berikutnya:{" "}
+              <span className="font-medium text-text">
+                {calculateNextBillingDate(startDate, billingCycle, watch("custom_cycle_days"))}
               </span>
             </p>
           )}
@@ -377,16 +413,13 @@ export default function SubscriptionForm({
           {...register("payment_method")}
           className={selectClass}
         >
-          <option value="credit_card">{t("pmCreditCard")}</option>
-          <option value="debit_card">{t("pmDebitCard")}</option>
-          <option value="gopay">{t("pmGopay")}</option>
-          <option value="ovo">{t("pmOvo")}</option>
-          <option value="dana">{t("pmDana")}</option>
-          <option value="shopeepay">{t("pmShopeepay")}</option>
-          <option value="qris">{t("pmQris")}</option>
-          <option value="bank_transfer">{t("pmBankTransfer")}</option>
-          <option value="other">{t("pmOther")}</option>
+          {paymentOptions.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
         </select>
+        {fieldError(errors.payment_method?.message)}
       </div>
 
       {/* Notes */}

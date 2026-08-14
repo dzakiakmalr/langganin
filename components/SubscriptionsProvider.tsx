@@ -11,8 +11,10 @@ import {
 } from "react";
 
 import type { Category, Subscription } from "@/types/subscription";
+import { DELETED_RETENTION_DAYS } from "@/types/subscription";
 import {
   type AppNotification,
+  type NotificationChannel,
   type ReminderPreferences,
   type SubscriptionOverride,
 } from "@/types/notifications";
@@ -21,6 +23,13 @@ import {
   DEFAULT_REMINDER_PREFERENCES,
   generateNotifications,
 } from "@/lib/utils/notifications";
+import { DEFAULT_PAYMENT_METHODS } from "@/lib/payment-methods";
+import {
+  buildExportPayload,
+  exportDataAsJSON,
+  parseImportPayload,
+  resetAllData,
+} from "@/lib/services/data-management";
 
 // TODO(backend): replace with real query — see 06-API-CONTRACT.md
 // The hook shape below is intentionally stable so consuming components
@@ -29,7 +38,7 @@ import {
 
 export type SubscriptionInput = Omit<
   Subscription,
-  "id" | "user_id" | "created_at" | "updated_at"
+  "id" | "user_id" | "created_at" | "updated_at" | "deleted_at"
 >;
 
 /** Input for creating/editing a Category — fields the user controls. */
@@ -47,6 +56,30 @@ type SubscriptionsContextType = {
   addSubscription: (data: SubscriptionInput) => void;
   updateSubscription: (id: string, data: Partial<SubscriptionInput>) => void;
   deleteSubscription: (id: string) => void;
+  restoreSubscription: (id: string) => void;
+
+  // ── Profile / Settings (new) ──
+  /** Display name used for the topbar greeting + avatar initial. */
+  profileName: string;
+  setProfileName: (name: string) => void;
+  /** Number/currency thousands separator preference. */
+  currencyFormat: "id" | "en";
+  setCurrencyFormat: (format: "id" | "en") => void;
+  /** Default currency code (e.g. "IDR") for new subscriptions. */
+  defaultCurrency: string;
+  setDefaultCurrency: (currency: string) => void;
+  /** Favorite payment methods, surfaced first in the subscription form. */
+  paymentMethods: string[];
+  addPaymentMethod: (method: string) => void;
+  removePaymentMethod: (method: string) => void;
+
+  // ── Data management (no backend yet) ──
+  /** Serialize the whole app state to a JSON backup string. */
+  exportData: () => string;
+  /** Replace the whole app state from a JSON backup string. */
+  importData: (json: string) => boolean;
+  /** Wipe all local data + localStorage back to defaults. */
+  resetData: () => void;
 
   // ── Categories (new slice) ──
   /** Create a new user-owned category. */
@@ -92,23 +125,51 @@ const Ctx = createContext<SubscriptionsContextType | undefined>(undefined);
 const STORAGE_KEY_PREFS = "langganin.notifications.prefs";
 const STORAGE_KEY_READ = "langganin.notifications.read";
 const STORAGE_HYDRATED = "langganin.notifications.hydrated";
+const STORAGE_KEY_SETTINGS = "langganin.settings";
 
 function readStoredPrefs(): ReminderPreferences | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY_PREFS);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      parsed.global &&
-      Array.isArray(parsed.global.daysBefore) &&
-      Array.isArray(parsed.global.channels) &&
-      typeof parsed.perSubscription === "object"
-    ) {
-      return parsed as ReminderPreferences;
+    const parsed = JSON.parse(raw) as {
+      global?: Partial<Record<"daysBefore" | "trialDaysBefore" | "channels", unknown>>;
+      perSubscription?: Record<string, Partial<Record<"daysBefore" | "trialDaysBefore" | "channels", unknown>> | null>;
+    };
+    if (!parsed.global || !parsed.perSubscription) return null;
+
+    const gDays = Array.isArray(parsed.global.daysBefore)
+      ? (parsed.global.daysBefore as number[])
+      : DEFAULT_REMINDER_PREFERENCES.global.daysBefore;
+    // Older stored data had no trialDaysBefore — fall back to renewal days.
+    const gTrial = Array.isArray(parsed.global.trialDaysBefore)
+      ? (parsed.global.trialDaysBefore as number[])
+      : gDays;
+    const gChannels = Array.isArray(parsed.global.channels)
+      ? (parsed.global.channels as NotificationChannel[])
+      : DEFAULT_REMINDER_PREFERENCES.global.channels;
+
+    const perSubscription: ReminderPreferences["perSubscription"] = {};
+    for (const [id, ov] of Object.entries(parsed.perSubscription)) {
+      if (!ov) {
+        perSubscription[id] = null;
+        continue;
+      }
+      perSubscription[id] = {
+        daysBefore: Array.isArray(ov.daysBefore) ? (ov.daysBefore as number[]) : gDays,
+        trialDaysBefore: Array.isArray(ov.trialDaysBefore)
+          ? (ov.trialDaysBefore as number[])
+          : gTrial,
+        channels: Array.isArray(ov.channels)
+          ? (ov.channels as NotificationChannel[])
+          : gChannels,
+      };
     }
+
+    return {
+      global: { daysBefore: gDays, trialDaysBefore: gTrial, channels: gChannels },
+      perSubscription,
+    };
   } catch {
     // ignore
   }
@@ -145,6 +206,58 @@ function writeStoredRead(ids: string[]): void {
   }
 }
 
+type StoredSettings = {
+  profileName: string;
+  currencyFormat: "id" | "en";
+  defaultCurrency: string;
+  paymentMethods: string[];
+};
+
+function readStoredSettings(): StoredSettings | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY_SETTINGS);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed.profileName === "string" &&
+      (parsed.currencyFormat === "id" || parsed.currencyFormat === "en") &&
+      Array.isArray(parsed.paymentMethods)
+    ) {
+      return {
+        profileName: parsed.profileName,
+        currencyFormat: parsed.currencyFormat,
+        defaultCurrency:
+          typeof parsed.defaultCurrency === "string"
+            ? parsed.defaultCurrency
+            : "IDR",
+        paymentMethods: parsed.paymentMethods,
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function writeStoredSettings(settings: StoredSettings): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+  } catch {
+    // ignore
+  }
+}
+
+/** True once a soft-deleted subscription has passed the retention window. */
+function isExpiredDeleted(s: Subscription): boolean {
+  if (s.status !== "cancelled" || !s.deleted_at) return false;
+  const deletedAt = new Date(s.deleted_at).getTime();
+  const cutoff = Date.now() - DELETED_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  return deletedAt < cutoff;
+}
+
 export function SubscriptionsProvider({ children }: { children: ReactNode }) {
   // TODO(backend): replace seed with real query — see 06-API-CONTRACT.md
   const [subscriptions, setSubscriptions] =
@@ -162,6 +275,14 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [hydrated, setHydrated] = useState(false);
 
+  // ── Profile / Settings state ──
+  const [profileName, setProfileName] = useState("");
+  const [currencyFormat, setCurrencyFormat] = useState<"id" | "en">("id");
+  const [defaultCurrency, setDefaultCurrency] = useState("IDR");
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([
+    ...DEFAULT_PAYMENT_METHODS,
+  ]);
+
   // Hydrate from localStorage on mount (avoids SSR/CSR mismatch).
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -169,6 +290,13 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     if (stored) setPreferences(stored);
     const storedRead = readStoredRead();
     if (storedRead.length > 0) setReadIds(new Set(storedRead));
+    const storedSettings = readStoredSettings();
+    if (storedSettings) {
+      setProfileName(storedSettings.profileName);
+      setCurrencyFormat(storedSettings.currencyFormat);
+      setDefaultCurrency(storedSettings.defaultCurrency);
+      setPaymentMethods(storedSettings.paymentMethods);
+    }
     setHydrated(true);
     // Mark hydration in a separate key so we can short-circuit writes
     // before the first effect runs.
@@ -178,6 +306,19 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
       // ignore
     }
   }, []);
+
+  // Persist settings on change (skip until hydrated so we don't clobber
+  // stored data with defaults on the first render).
+  useEffect(() => {
+    if (hydrated) {
+      writeStoredSettings({
+        profileName,
+        currencyFormat,
+        defaultCurrency,
+        paymentMethods,
+      });
+    }
+  }, [profileName, currencyFormat, defaultCurrency, paymentMethods, hydrated]);
 
   // Persist on change (skip until hydrated so we don't clobber stored data
   // with the default seed on the first render).
@@ -204,6 +345,7 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
       user_id: "user-mock-1",
       created_at: now,
       updated_at: now,
+      deleted_at: null,
     };
     setSubscriptions((prev) => [sub, ...prev]);
   }, []);
@@ -225,25 +367,104 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
   const deleteSubscription = useCallback(
     (id: string) => {
       // TODO(backend): replace with real query / Server Action
-      setSubscriptions((prev) => prev.filter((s) => s.id !== id));
-      // Also drop any per-subscription override for the deleted id.
-      setPreferences((prev) => {
-        if (!(id in prev.perSubscription)) return prev;
-        const next = { ...prev.perSubscription };
-        delete next[id];
-        return { ...prev, perSubscription: next };
-      });
-      // Drop any read-state entries for that subscription.
-      setReadIds((prev) => {
-        const next = new Set<string>();
-        for (const r of prev) {
-          if (!r.startsWith(`${id}#`)) next.add(r);
-        }
-        return next;
-      });
+      // Soft delete: mark as "cancelled" (recently deleted) and timestamp
+      // it so the retention window can purge it later. Reversible via
+      // restoreSubscription.
+      const now = new Date().toISOString();
+      setSubscriptions((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? { ...s, status: "cancelled", deleted_at: now, updated_at: now }
+            : s,
+        ),
+      );
     },
     [],
   );
+
+  const restoreSubscription = useCallback((id: string) => {
+    // TODO(backend): replace with real query / Server Action
+    setSubscriptions((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status: s.is_trial ? "trial" : "active",
+              deleted_at: null,
+              updated_at: new Date().toISOString(),
+            }
+          : s,
+      ),
+    );
+  }, []);
+
+  // Purge soft-deleted subscriptions past the retention window on load.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSubscriptions((prev) => prev.filter((s) => !isExpiredDeleted(s)));
+  }, []);
+
+  // ── Profile / Settings mutators ──
+  const addPaymentMethod = useCallback((method: string) => {
+    const trimmed = method.trim();
+    if (!trimmed) return;
+    setPaymentMethods((prev) =>
+      prev.some((m) => m.toLowerCase() === trimmed.toLowerCase())
+        ? prev
+        : [...prev, trimmed],
+    );
+  }, []);
+
+  const removePaymentMethod = useCallback((method: string) => {
+    setPaymentMethods((prev) => prev.filter((m) => m !== method));
+  }, []);
+
+  // ── Data management ──
+  const exportData = useCallback((): string => {
+    const payload = buildExportPayload({
+      profileName,
+      currencyFormat,
+      defaultCurrency,
+      paymentMethods,
+      subscriptions,
+      categories,
+      preferences,
+    });
+    return exportDataAsJSON(payload);
+  }, [
+    profileName,
+    currencyFormat,
+    defaultCurrency,
+    paymentMethods,
+    subscriptions,
+    categories,
+    preferences,
+  ]);
+
+  const importData = useCallback((json: string): boolean => {
+    const parsed = parseImportPayload(json);
+    if (!parsed) return false;
+    setSubscriptions(parsed.subscriptions);
+    setCategories(parsed.categories);
+    setPreferences(parsed.preferences);
+    setProfileName(parsed.profileName);
+    setCurrencyFormat(parsed.currencyFormat);
+    setDefaultCurrency(parsed.defaultCurrency);
+    setPaymentMethods(parsed.paymentMethods);
+    return true;
+  }, []);
+
+  const resetData = useCallback(() => {
+    resetAllData();
+    setSubscriptions([]);
+    setCategories(mockCategories);
+    setPreferences(DEFAULT_REMINDER_PREFERENCES);
+    setReadIds(new Set());
+    setProfileName("");
+    setCurrencyFormat("id");
+    setDefaultCurrency("IDR");
+    setPaymentMethods([...DEFAULT_PAYMENT_METHODS]);
+  }, []);
 
   // ── Categories (new) ──
   const addCategory = useCallback((data: CategoryInput) => {
@@ -355,6 +576,19 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
         addSubscription,
         updateSubscription,
         deleteSubscription,
+        restoreSubscription,
+        profileName,
+        setProfileName,
+        currencyFormat,
+        setCurrencyFormat,
+        defaultCurrency,
+        setDefaultCurrency,
+        paymentMethods,
+        addPaymentMethod,
+        removePaymentMethod,
+        exportData,
+        importData,
+        resetData,
         addCategory,
         updateCategory,
         deleteCategory,

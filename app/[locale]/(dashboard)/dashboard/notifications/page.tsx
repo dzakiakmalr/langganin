@@ -12,7 +12,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Notifications" });
-  return { title: t("title") };
+  return { title: t("title"), description: t("description") };
 }
 
 export default async function NotificationSettingsPage({
@@ -20,14 +20,9 @@ export default async function NotificationSettingsPage({
 }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "Notifications" });
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="mb-4">
-        <h1 className="sr-only">{t("settingsTitle")}</h1>
-        <p className="text-sm text-text-muted">{t("description")}</p>
-      </div>
       <NotificationSettingsClient />
     </div>
   );

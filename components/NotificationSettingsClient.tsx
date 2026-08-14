@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Calendar, Mail, MessageCircle, Plus, Save, X } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp, Mail, MessageCircle, Plus, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -25,13 +25,6 @@ const CHANNEL_META: Record<
   whatsapp: { id: "whatsapp", Icon: MessageCircle, labelKey: "channelWhatsapp", tone: "#25D366" },
   email: { id: "email", Icon: Mail, labelKey: "channelEmail", tone: "#4285F4" },
   google_calendar: { id: "google_calendar", Icon: Calendar, labelKey: "channelGoogleCalendar", tone: "#F47521" },
-};
-
-const FIXED_DAY_LABEL_KEYS: Record<number, "dayH0" | "dayH1" | "dayH3" | "dayH7"> = {
-  0: "dayH0",
-  1: "dayH1",
-  3: "dayH3",
-  7: "dayH7",
 };
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -97,7 +90,7 @@ export default function NotificationSettingsClient() {
           </span>
         </div>
 
-        {/* Days before */}
+        {/* Days before (renewals) */}
         <div className="mb-6">
           <p className="text-sm font-semibold text-text">
             {t("daysBeforeLabel")}
@@ -110,6 +103,25 @@ export default function NotificationSettingsClient() {
               value={preferences.global.daysBefore}
               onChange={(next) => {
                 updateGlobalPreferences({ ...preferences.global, daysBefore: next });
+                flash();
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Days before (trial ends) */}
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-text">
+            {t("trialDaysBeforeLabel")}
+          </p>
+          <p className="mt-1 text-xs text-text-muted">
+            {t("trialDaysBeforeDesc")}
+          </p>
+          <div className="mt-3">
+            <DaysBeforePicker
+              value={preferences.global.trialDaysBefore}
+              onChange={(next) => {
+                updateGlobalPreferences({ ...preferences.global, trialDaysBefore: next });
                 flash();
               }}
             />
@@ -176,6 +188,7 @@ export default function NotificationSettingsClient() {
                   subName={sub.name}
                   subLogoUrl={sub.logo_url}
                   categoryColor={cat?.color ?? null}
+                  isTrial={sub.is_trial}
                   override={override}
                   global={preferences.global}
                   onChange={(next) => {
@@ -191,7 +204,7 @@ export default function NotificationSettingsClient() {
   );
 }
 
-function ChannelRow({
+export function ChannelRow({
   channel,
   active,
   onToggle,
@@ -225,7 +238,7 @@ function ChannelRow({
         {t(meta.labelKey)}
       </span>
       <span
-        className="rounded-pill bg-warning/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning"
+        className="rounded-pill bg-clay-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-text-muted"
         title={t("comingSoonHint")}
       >
         {t("comingSoon")}
@@ -239,7 +252,7 @@ function ChannelRow({
  * (H-7/H-3/H-1/H-0) plus any custom days the user has added, then a
  * "+ Kustom" button that toggles a small inline input for adding new days.
  */
-function DaysBeforePicker({
+export function DaysBeforePicker({
   value,
   onChange,
 }: {
@@ -311,15 +324,13 @@ function DaysBeforePicker({
                 type="button"
                 onClick={() => toggleDay(d)}
                 aria-pressed={active}
-                aria-label={`H-${d}`}
+                aria-label={`${t("dayShort")}${d}`}
                 className="flex items-center gap-1.5 rounded-pill px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
               >
-                <span>H-{d}</span>
-                {isFixed && (
-                  <span className="text-xs opacity-80">
-                    {t(FIXED_DAY_LABEL_KEYS[d])}
-                  </span>
-                )}
+                <span>
+                  {t("dayShort")}
+                  {d}
+                </span>
               </button>
               {!isFixed && active && (
                 <button
@@ -386,10 +397,10 @@ function DaysBeforePicker({
               className="text-xs text-danger"
             >
               {error === "outOfRange"
-                ? `${t("invalidDayRange")}`
+                ? t("invalidDayRange")
                 : error === "duplicate"
-                  ? "—"
-                  : null}
+                  ? t("dayDuplicate")
+                  : t("dayInvalid")}
             </span>
           )}
         </div>
@@ -402,6 +413,7 @@ function PerSubscriptionRow({
   subName,
   subLogoUrl,
   categoryColor,
+  isTrial,
   override,
   global,
   onChange,
@@ -410,6 +422,7 @@ function PerSubscriptionRow({
   subName: string;
   subLogoUrl: string | null;
   categoryColor: string | null;
+  isTrial: boolean;
   override: SubscriptionOverride | null;
   global: SubscriptionOverride;
   onChange: (next: SubscriptionOverride | null) => void;
@@ -453,6 +466,13 @@ function PerSubscriptionRow({
     onChange(next);
   }
 
+  function setTrialDays(nextDays: number[]) {
+    if (!isCustom) return; // safety
+    const next = { ...draft, trialDaysBefore: nextDays };
+    setDraft(next);
+    onChange(next);
+  }
+
   function toggleChannel(c: NotificationChannel) {
     if (!isCustom) return; // safety
     const nextCh = draft.channels.includes(c)
@@ -488,27 +508,48 @@ function PerSubscriptionRow({
               : "bg-clay-100 text-text-muted hover:bg-clay-200 hover:text-text"
           }`}
         >
-          {isCustom ? t("customize") : t("useDefault")}
+          {isCustom ? t("useDefault") : t("customize")}
         </button>
         {isCustom && (
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
+            aria-label={expanded ? t("hideOptions") : t("showOptions")}
+            title={expanded ? t("hideOptions") : t("showOptions")}
             className="rounded-[10px] p-1 text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
-            title={expanded ? "Collapse" : "Expand"}
           >
-            <Bell size={14} aria-hidden />
+            {expanded ? (
+              <ChevronUp size={16} aria-hidden />
+            ) : (
+              <ChevronDown size={16} aria-hidden />
+            )}
           </button>
         )}
       </div>
       {isCustom && expanded && (
         <div className="border-t border-clay-100 px-4 py-3">
           <div className="mb-3">
-            <DaysBeforePicker
-              value={draft.daysBefore}
-              onChange={setDays}
-            />
+            <p className="mb-1 text-xs font-semibold text-text">
+              {t("daysBeforeLabel")}
+            </p>
+            <DaysBeforePicker value={draft.daysBefore} onChange={setDays} />
+          </div>
+          <div className={`mb-3 ${!isTrial ? "opacity-50" : ""}`}>
+            <p className="mb-1 text-xs font-semibold text-text">
+              {t("trialDaysBeforeLabel")}
+            </p>
+            <div className={!isTrial ? "pointer-events-none" : undefined}>
+              <DaysBeforePicker
+                value={draft.trialDaysBefore}
+                onChange={setTrialDays}
+              />
+            </div>
+            {!isTrial && (
+              <p className="mt-1 text-[11px] text-text-subtle">
+                {t("trialDaysBeforeDisabled")}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {(["whatsapp", "email", "google_calendar"] as const).map((c) => {

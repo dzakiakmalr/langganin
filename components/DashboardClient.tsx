@@ -10,6 +10,7 @@ import SummaryCard from "@/components/SummaryCard";
 import UpcomingRenewals from "@/components/UpcomingRenewals";
 import MiniCalendar from "@/components/MiniCalendar";
 import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { findBrandByName } from "@/lib/brands/brand-registry";
 
 import { formatIdr } from "@/lib/utils/format-currency";
 import { normalizeMonthlyPrice } from "@/lib/utils/subscription-math";
@@ -42,9 +43,16 @@ export default function DashboardClient() {
   const activeAndTrial = subscriptions.filter(
     (s) => s.status === "active" || s.status === "trial",
   );
-  const activeCount = subscriptions.filter(
-    (s) => s.status === "active",
-  ).length;
+  const activeSubs = subscriptions.filter((s) => s.status === "active");
+  const activeCount = activeSubs.length;
+  const activeLogos = activeSubs.map((s) => {
+    const cat = categories.find((c) => c.id === s.category_id);
+    return {
+      name: s.name,
+      color: findBrandByName(s.name)?.color ?? cat?.color ?? "#8C8884",
+      logoSrc: s.logo_url,
+    };
+  });
 
   const monthlyTotal = activeAndTrial.reduce(
     (sum, s) =>
@@ -136,6 +144,7 @@ export default function DashboardClient() {
         <SummaryCard
           title={t("activeSubscriptions")}
           value={String(activeCount)}
+          logos={activeLogos}
         />
       </div>
 

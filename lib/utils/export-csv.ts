@@ -8,23 +8,11 @@ const CYCLE_LABEL: Record<string, string> = {
   custom_days: "Kustom",
 };
 
-const PAYMENT_LABEL: Record<string, string> = {
-  credit_card: "Kartu Kredit",
-  debit_card: "Kartu Debit",
-  gopay: "GoPay",
-  ovo: "OVO",
-  dana: "DANA",
-  shopeepay: "ShopeePay",
-  qris: "QRIS",
-  bank_transfer: "Transfer Bank",
-  other: "Lainnya",
-};
-
 const STATUS_LABEL: Record<string, string> = {
   active: "Aktif",
   trial: "Trial",
-  paused: "Dihentikan",
-  cancelled: "Dibatalkan",
+  paused: "Ditunda",
+  cancelled: "Baru dihapus",
 };
 
 /**
@@ -71,7 +59,7 @@ export function generateCSV(
       sub.currency,
       cycleStr,
       cat?.name ?? "—",
-      PAYMENT_LABEL[sub.payment_method] ?? sub.payment_method,
+      sub.payment_method,
       STATUS_LABEL[sub.status] ?? sub.status,
     ]);
   }

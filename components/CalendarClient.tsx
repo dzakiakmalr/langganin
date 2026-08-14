@@ -267,14 +267,6 @@ export default function CalendarClient() {
                 />
               )}
               <span
-                aria-hidden
-                className={`relative z-10 text-sm font-semibold ${
-                  viewMode === "week" ? "text-white" : ""
-                }`}
-              >
-                7
-              </span>
-              <span
                 className={`relative z-10 ${
                   viewMode === "week" ? "text-white" : ""
                 }`}

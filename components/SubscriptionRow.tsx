@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Pencil, Trash2 } from "lucide-react";
+import { Check, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
 import { differenceInDays, startOfDay } from "date-fns";
 import { useTranslations } from "next-intl";
 
-import type { Subscription } from "@/types/subscription";
+import { DELETED_RETENTION_DAYS, type Subscription } from "@/types/subscription";
 import BrandLogo from "@/components/BrandLogo";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { formatIdr } from "@/lib/utils/format-currency";
@@ -66,12 +66,22 @@ export default function SubscriptionRow({
   const t = useTranslations("Subscriptions");
   const td = useTranslations("SubscriptionDetail");
   const router = useRouter();
-  const { deleteSubscription } = useSubscriptions();
+  const { deleteSubscription, restoreSubscription, updateSubscription } =
+    useSubscriptions();
   const [showDelete, setShowDelete] = useState(false);
 
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
   const isActive = subscription.status === "active" || subscription.status === "trial";
+  const isPaused = subscription.status === "paused";
+  const isDeleted = subscription.status === "cancelled";
+  const daysSinceDeleted = subscription.deleted_at
+    ? differenceInDays(today, startOfDay(new Date(subscription.deleted_at)))
+    : 0;
+  const deleteDaysLeft = Math.max(
+    0,
+    DELETED_RETENTION_DAYS - daysSinceDeleted,
+  );
   const cycleSub =
     subscription.billing_cycle === "weekly"
       ? t("perWeek")
@@ -98,9 +108,25 @@ export default function SubscriptionRow({
     setShowDelete(false);
   };
 
+  const handleTogglePause = () => {
+    updateSubscription(subscription.id, {
+      status: isPaused
+        ? subscription.is_trial
+          ? "trial"
+          : "active"
+        : "paused",
+    });
+  };
+
+  const handleRestore = () => {
+    restoreSubscription(subscription.id);
+  };
+
   return (
     <div
-      className="flex items-center gap-1 rounded-[14px] bg-surface py-2.5 pl-3 pr-2 shadow-sm transition-colors hover:bg-[var(--row-hover)]"
+      className={`flex items-center gap-1 rounded-[14px] bg-surface py-2.5 pl-3 pr-2 shadow-sm transition-[background-color,opacity,filter] hover:bg-[var(--row-hover)] ${
+        isPaused || isDeleted ? "opacity-60 grayscale" : ""
+      }`}
       style={{ "--row-hover": hoverTint } as React.CSSProperties}
     >
       {/* Selection checkbox (bulk-select mode) */}
@@ -152,21 +178,21 @@ export default function SubscriptionRow({
             >
               {statusLabel}
             </span>
-            {subscription.status === "trial" && (
-              <span className="rounded-pill bg-warning/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning">
-                {t("rowStatusTrial")}
-              </span>
-            )}
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-text-muted">
             {categoryName && <span className="truncate">{categoryName}</span>}
-            {isActive && categoryName && <span aria-hidden>·</span>}
+            {(isActive || isDeleted) && categoryName && <span aria-hidden>·</span>}
             {isActive && (
               <span>
                 {subscription.status === "trial" ? t("trialEndsLabel") : t("renewsLabel")}{" "}
                 <span className={`font-semibold ${daysColor(daysUntil)}`}>
                   {daysLabel(daysUntil)}
                 </span>
+              </span>
+            )}
+            {isDeleted && (
+              <span className="font-semibold">
+                {t("deletedHint", { days: deleteDaysLeft })}
               </span>
             )}
           </div>
@@ -185,7 +211,16 @@ export default function SubscriptionRow({
       </Link>
 
       {/* Actions */}
-      {!selectable && (
+      {!selectable && isDeleted ? (
+        <button
+          type="button"
+          aria-label={t("restoreButton")}
+          onClick={handleRestore}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-brand-600 transition-colors hover:bg-brand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+        >
+          <RotateCcw size={15} aria-hidden />
+        </button>
+      ) : !selectable ? (
         <>
           <button
             type="button"
@@ -197,6 +232,14 @@ export default function SubscriptionRow({
           </button>
           <button
             type="button"
+            aria-label={isPaused ? t("resumeButton") : t("pauseButton")}
+            onClick={handleTogglePause}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-text-muted transition-colors hover:bg-clay-100 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            {isPaused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />}
+          </button>
+          <button
+            type="button"
             aria-label={t("deleteButton")}
             onClick={() => setShowDelete(true)}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-text-muted transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
@@ -204,7 +247,7 @@ export default function SubscriptionRow({
             <Trash2 size={15} aria-hidden />
           </button>
         </>
-      )}
+      ) : null}
 
       <ConfirmDialog
         open={showDelete}

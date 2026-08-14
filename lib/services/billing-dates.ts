@@ -1,6 +1,6 @@
 import { addDays, addMonths, addWeeks, addYears, format } from "date-fns";
 
-import type { BillingCycle } from "@/types/subscription";
+import type { BillingCycle, TrialDurationUnit } from "@/types/subscription";
 
 /**
  * Pure date-calculation helpers — no DB, no network, no side effects.
@@ -31,10 +31,15 @@ export function calculateNextBillingDate(
 
 export function calculateTrialEndDate(
   trialStartDate: string, // YYYY-MM-DD
-  trialDurationDays: number,
+  trialDuration: number,
+  unit: TrialDurationUnit = "days",
 ): string {
-  return format(
-    addDays(new Date(trialStartDate + "T00:00:00"), trialDurationDays),
-    "yyyy-MM-dd",
-  );
+  const d = new Date(trialStartDate + "T00:00:00");
+  const next =
+    unit === "months"
+      ? addMonths(d, trialDuration)
+      : unit === "years"
+        ? addYears(d, trialDuration)
+        : addDays(d, trialDuration);
+  return format(next, "yyyy-MM-dd");
 }

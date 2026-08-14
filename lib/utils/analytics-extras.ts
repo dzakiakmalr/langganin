@@ -1,4 +1,4 @@
-import type { Category, PaymentMethod, Subscription } from "@/types/subscription";
+import type { Category, Subscription } from "@/types/subscription";
 import { normalizeMonthlyPrice } from "@/lib/utils/subscription-math";
 import type { CategoryDatum } from "@/lib/utils/analytics";
 import { findBrandByName } from "@/lib/brands/brand-registry";
@@ -12,40 +12,25 @@ import { findBrandByName } from "@/lib/brands/brand-registry";
 // keep using `@/lib/utils/analytics` as the single import surface.
 // ---------------------------------------------------------------------------
 
-/**
- * Labels for the `payment_method` enum, Bahasa Indonesia default since
- * that's Langganin's primary locale. Keys mirror the
- * `Subscription.payment_method` union.
- */
-export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  gopay: "GoPay",
-  ovo: "OVO",
-  dana: "DANA",
-  shopeepay: "ShopeePay",
-  qris: "QRIS",
-  credit_card: "Kartu Kredit",
-  debit_card: "Kartu Debit",
-  bank_transfer: "Transfer Bank",
-  other: "Lainnya",
-};
+/** Neutral fallback color for payment methods not in the curated palette. */
+const PAYMENT_METHOD_FALLBACK_COLOR = "#8C8884";
 
 /**
- * Per-method colors. Deliberately NOT the brand-accurate e-wallet colors
- * (those would clash with the existing category palette and the warm
- * design system). Each color is distinct from `mockCategories` colors
- * so users can tell "payment chart slice" from "category chart slice"
- * at a glance.
+ * Per-method colors for the common methods. Unknown methods (free-form
+ * entries typed by the user) fall back to a neutral gray. Deliberately NOT
+ * the brand-accurate e-wallet colors — those would clash with the category
+ * palette and the warm design system.
  */
-export const PAYMENT_METHOD_COLORS: Record<PaymentMethod, string> = {
-  gopay: "#3D8E7F", // teal-green (distinct from cat "AI Tools" sage)
-  ovo: "#7B6BA8", // muted purple
-  dana: "#4A7CA8", // blue (cooler than cat "Productivity")
-  shopeepay: "#D87553", // warm orange (slightly lighter than cat "Streaming")
-  qris: "#B85A5A", // muted red
-  credit_card: "#2A2D38", // dark charcoal-blue
-  debit_card: "#5C5A57", // medium gray
-  bank_transfer: "#9A8E7F", // warm beige
-  other: "#8C8884", // subtle gray
+export const PAYMENT_METHOD_COLORS: Record<string, string> = {
+  GoPay: "#3D8E7F", // teal-green (distinct from cat "AI Tools" sage)
+  OVO: "#7B6BA8", // muted purple
+  DANA: "#4A7CA8", // blue (cooler than cat "Productivity")
+  ShopeePay: "#D87553", // warm orange (slightly lighter than cat "Streaming")
+  QRIS: "#B85A5A", // muted red
+  "Kartu Kredit": "#2A2D38", // dark charcoal-blue
+  "Kartu Debit": "#5C5A57", // medium gray
+  "Transfer Bank": "#9A8E7F", // warm beige
+  Lainnya: "#8C8884", // subtle gray
 };
 
 /**
@@ -55,7 +40,7 @@ export const PAYMENT_METHOD_COLORS: Record<PaymentMethod, string> = {
 export function buildPaymentMethodBreakdown(
   subscriptions: Subscription[],
 ): CategoryDatum[] {
-  const map = new Map<PaymentMethod, CategoryDatum>();
+  const map = new Map<string, CategoryDatum>();
   for (const sub of subscriptions) {
     if (sub.status !== "active" && sub.status !== "trial") continue;
     const value = normalizeMonthlyPrice(
@@ -63,15 +48,15 @@ export function buildPaymentMethodBreakdown(
       sub.billing_cycle,
       sub.custom_cycle_days,
     );
-    const method = sub.payment_method;
+    const method = sub.payment_method.trim() || "Lainnya";
     const existing = map.get(method);
     if (existing) {
       existing.value += value;
     } else {
       map.set(method, {
-        name: PAYMENT_METHOD_LABELS[method],
+        name: method,
         value,
-        color: PAYMENT_METHOD_COLORS[method],
+        color: PAYMENT_METHOD_COLORS[method] ?? PAYMENT_METHOD_FALLBACK_COLOR,
       });
     }
   }

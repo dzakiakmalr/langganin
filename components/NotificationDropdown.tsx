@@ -14,7 +14,7 @@ function dayWord(daysUntil: number, t: ReturnType<typeof useTranslations>): stri
   if (daysUntil === 1) return t("dayH1");
   if (daysUntil === 3) return t("dayH3");
   if (daysUntil === 7) return t("dayH7");
-  return `${daysUntil} hari`;
+  return t("dayHGeneric", { days: daysUntil });
 }
 
 type NotificationDropdownProps = {
@@ -140,7 +140,7 @@ function NotificationRow({
           </div>
           <p className="mt-0.5 text-xs text-text-muted">
             {notification.daysBefore > 0
-              ? `H-${notification.daysBefore} · `
+              ? `${t("dayShort")}${notification.daysBefore} · `
               : ""}
             {title}
           </p>
@@ -156,7 +156,8 @@ function NotificationRow({
               aria-hidden
               className="rounded-pill bg-clay-200 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-text-muted"
             >
-              H-{notification.daysBefore}
+              {t("dayShort")}
+              {notification.daysBefore}
             </span>
           )}
         </div>
