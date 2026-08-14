@@ -59,12 +59,19 @@ export default function SubscriptionCard({
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
 
-  const statusLabel: Record<string, string> = {
-    active: "Aktif",
-    trial: "Trial",
-    paused: "Dihentikan",
-    cancelled: "Dibatalkan",
+  const statusLabelKey: Record<
+    string,
+    "rowStatusActive" | "rowStatusTrial" | "rowStatusPaused" | "rowStatusCancelled"
+  > = {
+    active: "rowStatusActive",
+    trial: "rowStatusTrial",
+    paused: "rowStatusPaused",
+    cancelled: "rowStatusCancelled",
   };
+
+  const statusLabel = statusLabelKey[subscription.status]
+    ? t(statusLabelKey[subscription.status])
+    : subscription.status;
 
   const statusColor: Record<string, string> = {
     active: "text-success",
@@ -138,7 +145,7 @@ export default function SubscriptionCard({
                     <CategoryBadge name={categoryName} color={categoryColor ?? null} />
                   )}
                   <span className={`text-xs font-semibold ${statusColor[subscription.status]}`}>
-                    {statusLabel[subscription.status] ?? subscription.status}
+                    {statusLabel}
                   </span>
                 </div>
               </div>
@@ -149,10 +156,10 @@ export default function SubscriptionCard({
                 >
                   {formatIdr(subscription.price)}
                   {subscription.billing_cycle === "weekly" && (
-                    <span className="text-xs text-text-muted"> /mg</span>
+                    <span className="text-xs text-text-muted">{t("perWeek")}</span>
                   )}
                   {subscription.billing_cycle === "yearly" && (
-                    <span className="text-xs text-text-muted"> /thn</span>
+                    <span className="text-xs text-text-muted">{t("perYear")}</span>
                   )}
                 </p>
               </div>
@@ -162,13 +169,13 @@ export default function SubscriptionCard({
 
         {(subscription.status === "active" || subscription.status === "trial") && (
           <p className="mt-3 border-t border-clay-100 pt-3 text-xs text-text-muted">
-            {subscription.status === "trial" ? "Trial berakhir " : "Perpanjangan "}
+            {subscription.status === "trial" ? t("trialEndsLabel") : t("renewsLabel")}{" "}
             <span className={`ml-1 font-semibold ${daysColor(daysUntil)}`}>
               {daysUntil <= 0
-                ? "hari ini"
+                ? t("inToday")
                 : daysUntil === 1
-                  ? "besok"
-                  : `${daysUntil} hari lagi`}
+                  ? t("inTomorrow")
+                  : t("inDays", { count: daysUntil })}
             </span>
           </p>
         )}

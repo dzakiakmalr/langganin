@@ -138,6 +138,14 @@
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid var(--color-glass-border);
 }
+/* Near-solid glass — floating panels over dense content (e.g. the
+   notification dropdown) where translucent glass hurts readability. */
+@utility glass-panel-solid {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
 
 /* ── Mobile drawer — near-solid base so nav text stays readable over
      dense content; the desktop sidebar keeps the lighter glass-panel. ── */

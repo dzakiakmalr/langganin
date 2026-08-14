@@ -28,7 +28,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
   const visible = notifications.slice(0, MAX_VISIBLE);
 
   return (
-    <div className="glass-panel-lg overflow-hidden rounded-card shadow-lg">
+    <div className="glass-panel-solid overflow-hidden rounded-card shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-clay-100 px-4 py-3">
         <div className="flex items-center gap-2">

@@ -32,12 +32,6 @@ function daysColor(days: number): string {
   return "text-success";
 }
 
-function daysLabel(days: number): string {
-  if (days <= 0) return "hari ini";
-  if (days === 1) return "besok";
-  return `${days} hari lagi`;
-}
-
 function hexToRgba(hex: string, alpha: number): string {
   const clean = hex.replace("#", "");
   const r = parseInt(clean.slice(0, 2), 16);
@@ -45,13 +39,6 @@ function hexToRgba(hex: string, alpha: number): string {
   const b = parseInt(clean.slice(4, 6), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-
-const CYCLE_SUB: Record<string, string> = {
-  weekly: "/mg",
-  monthly: "",
-  yearly: "/thn",
-  custom_days: "",
-};
 
 const STATUS_COLOR: Record<string, string> = {
   active: "text-success",
@@ -85,10 +72,22 @@ export default function SubscriptionRow({
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
   const isActive = subscription.status === "active" || subscription.status === "trial";
-  const cycleSub = CYCLE_SUB[subscription.billing_cycle] ?? "";
+  const cycleSub =
+    subscription.billing_cycle === "weekly"
+      ? t("perWeek")
+      : subscription.billing_cycle === "yearly"
+        ? t("perYear")
+        : "";
   const statusLabel =
     t(STATUS_LABEL_KEY[subscription.status] as "rowStatusActive" | "rowStatusTrial" | "rowStatusPaused" | "rowStatusCancelled") ??
     subscription.status;
+
+  const daysLabel = (days: number): string =>
+    days <= 0
+      ? t("inToday")
+      : days === 1
+        ? t("inTomorrow")
+        : t("inDays", { count: days });
 
   const color = brandColor ?? categoryColor ?? "#8C8884";
   const hoverTint = hexToRgba(color, 0.06);
@@ -155,7 +154,7 @@ export default function SubscriptionRow({
             </span>
             {subscription.status === "trial" && (
               <span className="rounded-pill bg-warning/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning">
-                Trial
+                {t("rowStatusTrial")}
               </span>
             )}
           </div>
@@ -164,7 +163,7 @@ export default function SubscriptionRow({
             {isActive && categoryName && <span aria-hidden>·</span>}
             {isActive && (
               <span>
-                {subscription.status === "trial" ? "Trial berakhir " : "Perpanjangan "}
+                {subscription.status === "trial" ? t("trialEndsLabel") : t("renewsLabel")}{" "}
                 <span className={`font-semibold ${daysColor(daysUntil)}`}>
                   {daysLabel(daysUntil)}
                 </span>
