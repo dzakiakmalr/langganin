@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { BellOff, Check, CheckCheck } from "lucide-react";
 
-import { useNotifications } from "@/components/SubscriptionsProvider";
+import { useNotifications } from "@/components/subscriptions/SubscriptionsProvider";
 import { Link } from "@/i18n/navigation";
 import type { AppNotification } from "@/types/notifications";
 

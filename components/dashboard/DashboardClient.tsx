@@ -2,14 +2,14 @@
 
 import { useTranslations } from "next-intl";
 
-import ChartCard from "@/components/ChartCard";
-import ChartPie from "@/components/ChartPie";
-import EmptyState from "@/components/EmptyState";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
-import SummaryCard from "@/components/SummaryCard";
-import UpcomingRenewals from "@/components/UpcomingRenewals";
-import MiniCalendar from "@/components/MiniCalendar";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import ChartCard from "@/components/ui/ChartCard";
+import ChartPie from "@/components/ui/ChartPie";
+import EmptyState from "@/components/ui/EmptyState";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+import SummaryCard from "@/components/dashboard/SummaryCard";
+import UpcomingRenewals from "@/components/dashboard/UpcomingRenewals";
+import MiniCalendar from "@/components/dashboard/MiniCalendar";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import { findBrandByName } from "@/lib/brands/brand-registry";
 
 import { formatIdr } from "@/lib/utils/format-currency";

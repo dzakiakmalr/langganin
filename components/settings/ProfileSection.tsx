@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import SectionCard from "@/components/settings/SectionCard";
 
 export default function ProfileSection() {

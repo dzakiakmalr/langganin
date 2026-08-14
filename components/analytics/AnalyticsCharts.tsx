@@ -1,9 +1,9 @@
 "use client";
 
-import ChartCard from "@/components/ChartCard";
-import ChartMonthlyTrend from "@/components/ChartMonthlyTrend";
-import ChartPie from "@/components/ChartPie";
-import ChartSubscriptionRanking from "@/components/ChartSubscriptionRanking";
+import ChartCard from "@/components/ui/ChartCard";
+import ChartMonthlyTrend from "@/components/analytics/ChartMonthlyTrend";
+import ChartPie from "@/components/ui/ChartPie";
+import ChartSubscriptionRanking from "@/components/analytics/ChartSubscriptionRanking";
 import type {
   buildCategoryDonut,
   buildMonthlyTrend,

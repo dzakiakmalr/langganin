@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import {
   useNotifications,
   useSubscriptions,
-} from "@/components/SubscriptionsProvider";
+} from "@/components/subscriptions/SubscriptionsProvider";
 import {
   FIXED_DAYS_BEFORE,
   MAX_DAYS_BEFORE,
@@ -16,7 +16,7 @@ import {
   type SubscriptionOverride,
 } from "@/types/notifications";
 import { findBrandByName, resolveBrand } from "@/lib/brands/brand-registry";
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 const CHANNEL_META: Record<
   NotificationChannel,

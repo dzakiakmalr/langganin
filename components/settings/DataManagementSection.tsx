@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import { Download, Upload, AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import ConfirmDialog from "@/components/ConfirmDialog";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import SectionCard from "@/components/settings/SectionCard";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import {
   downloadJSON,
   parseImportPayload,

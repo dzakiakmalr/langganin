@@ -2,9 +2,9 @@
 
 import { useTranslations } from "next-intl";
 
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import SectionCard from "@/components/settings/SectionCard";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import { CURRENCIES } from "@/lib/currencies";
 
 export default function PreferencesSection() {

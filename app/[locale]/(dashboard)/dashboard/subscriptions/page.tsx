@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import SubscriptionsListClient from "@/components/SubscriptionsListClient";
+import SubscriptionsListClient from "@/components/subscriptions/SubscriptionsListClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;

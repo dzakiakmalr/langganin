@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import CalendarClient from "@/components/CalendarClient";
+import CalendarClient from "@/components/calendar/CalendarClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;

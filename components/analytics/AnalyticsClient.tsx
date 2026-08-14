@@ -10,15 +10,15 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import AnalyticsCharts from "@/components/AnalyticsCharts";
-import ChatPanel from "@/components/ChatPanel";
-import InsightCard from "@/components/InsightCard";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
+import AnalyticsCharts from "@/components/analytics/AnalyticsCharts";
+import ChatPanel from "@/components/chat/ChatPanel";
+import InsightCard from "@/components/analytics/InsightCard";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import MobileTabSwitcher, {
   type MobileTab,
-} from "@/components/MobileTabSwitcher";
-import SummaryCard from "@/components/SummaryCard";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+} from "@/components/ui/MobileTabSwitcher";
+import SummaryCard from "@/components/dashboard/SummaryCard";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import {
   buildCategoryDonut,
   buildInsights,

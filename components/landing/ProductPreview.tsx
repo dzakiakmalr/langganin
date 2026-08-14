@@ -7,7 +7,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { buildLogoUrl } from "@/lib/brands/brand-registry";
 
 /**

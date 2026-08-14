@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import DashboardClient from "@/components/DashboardClient";
+import DashboardClient from "@/components/dashboard/DashboardClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;

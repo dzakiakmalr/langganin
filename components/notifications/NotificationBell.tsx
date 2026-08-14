@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useNotifications } from "@/components/SubscriptionsProvider";
-import NotificationDropdown from "@/components/NotificationDropdown";
+import { useNotifications } from "@/components/subscriptions/SubscriptionsProvider";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 /**
  * Bell icon for the topbar. Shows an unread badge, opens a glass popover

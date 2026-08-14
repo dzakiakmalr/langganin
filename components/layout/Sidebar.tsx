@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 import { Link, usePathname } from "@/i18n/navigation";
-import { useSidebar } from "@/components/sidebar-context";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSidebar } from "@/components/layout/sidebar-context";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 
 const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "dashboard", Icon: LayoutDashboard },

@@ -5,7 +5,7 @@ import { Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/settings/SectionCard";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 
 export default function PaymentMethodsSection() {
   const t = useTranslations("Settings");

@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import {
   ChannelRow,
   DaysBeforePicker,
-} from "@/components/NotificationSettingsClient";
+} from "@/components/notifications/NotificationSettingsClient";
 import SectionCard from "@/components/settings/SectionCard";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import { Link } from "@/i18n/navigation";
 import { NOTIFICATION_CHANNELS } from "@/types/notifications";
 

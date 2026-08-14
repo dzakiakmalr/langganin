@@ -1,4 +1,4 @@
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 type SummaryCardLogo = {
   name: string;

@@ -2,7 +2,7 @@ import { differenceInDays, parseISO, startOfDay } from "date-fns";
 
 import type { Subscription } from "@/types/subscription";
 
-import CategoryBadge from "@/components/CategoryBadge";
+import CategoryBadge from "@/components/ui/CategoryBadge";
 import type { Category } from "@/types/subscription";
 import { formatIdr } from "@/lib/utils/format-currency";
 

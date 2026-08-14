@@ -4,14 +4,14 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, Menu, Search } from "lucide-react";
 
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import NotificationBell from "@/components/NotificationBell";
-import BrandLogo from "@/components/BrandLogo";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import NotificationBell from "@/components/notifications/NotificationBell";
+import BrandLogo from "@/components/ui/BrandLogo";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import { findBrandByName } from "@/lib/brands/brand-registry";
 import { formatIdr } from "@/lib/utils/format-currency";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useSidebar } from "@/components/sidebar-context";
+import { useSidebar } from "@/components/layout/sidebar-context";
 
 export default function Topbar() {
   const t = useTranslations("Topbar");

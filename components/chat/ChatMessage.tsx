@@ -2,7 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 
-import ChatMarkdown from "@/components/ChatMarkdown";
+import ChatMarkdown from "@/components/chat/ChatMarkdown";
 
 // ---------------------------------------------------------------------------
 // ChatMessage — single bubble in the AI chat panel.

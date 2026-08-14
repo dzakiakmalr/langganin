@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { Link } from "@/i18n/navigation";
 
 export default async function LandingNav({

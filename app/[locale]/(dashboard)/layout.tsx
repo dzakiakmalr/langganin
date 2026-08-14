@@ -1,9 +1,9 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { SidebarProvider } from "@/components/sidebar-context";
-import { SubscriptionsProvider } from "@/components/SubscriptionsProvider";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
+import { SidebarProvider } from "@/components/layout/sidebar-context";
+import { SubscriptionsProvider } from "@/components/subscriptions/SubscriptionsProvider";
+import Sidebar from "@/components/layout/Sidebar";
+import Topbar from "@/components/layout/Topbar";
 
 export default async function DashboardLayout({
   children,

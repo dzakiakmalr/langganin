@@ -6,13 +6,13 @@ import { CheckSquare, LayoutGrid, List, Settings2, Trash2, X } from "lucide-reac
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
-import SubscriptionCard from "@/components/SubscriptionCard";
-import SubscriptionRow from "@/components/SubscriptionRow";
-import SubscriptionForm from "@/components/SubscriptionForm";
-import CategoryManagerModal from "@/components/CategoryManagerModal";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
+import SubscriptionCard from "@/components/subscriptions/SubscriptionCard";
+import SubscriptionRow from "@/components/subscriptions/SubscriptionRow";
+import SubscriptionForm from "@/components/subscriptions/SubscriptionForm";
+import CategoryManagerModal from "@/components/subscriptions/CategoryManagerModal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import type { SubscriptionInput } from "@/components/subscriptions/SubscriptionsProvider";
 import type { Subscription } from "@/types/subscription";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 import { findBrandByName } from "@/lib/brands/brand-registry";

@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import {
   useSubscriptions,
   type CategoryInput,
-} from "@/components/SubscriptionsProvider";
-import ConfirmDialog from "@/components/ConfirmDialog";
+} from "@/components/subscriptions/SubscriptionsProvider";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import type { Category } from "@/types/subscription";
 
 /** 12 preset swatches, all reusing the existing design-system palette. */

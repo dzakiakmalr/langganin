@@ -7,8 +7,8 @@ import { z } from "zod";
 import { Check, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import type { SubscriptionInput } from "@/components/subscriptions/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import {
   calculateNextBillingDate,
   calculateTrialEndDate,
@@ -16,7 +16,7 @@ import {
 import { findBrandByName, buildLogoUrl } from "@/lib/brands/brand-registry";
 import { STANDARD_PAYMENT_METHODS } from "@/lib/payment-methods";
 import { CURRENCIES } from "@/lib/currencies";
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 // ── Zod schema ──────────────────────────────────────────────────────────
 const subscriptionSchema = z.object({

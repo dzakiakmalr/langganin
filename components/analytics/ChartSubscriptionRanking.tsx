@@ -1,6 +1,6 @@
 "use client";
 
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { formatIdr } from "@/lib/utils/format-currency";
 import type { SubscriptionRankingDatum } from "@/lib/utils/analytics";
 import { useRouter } from "@/i18n/navigation";

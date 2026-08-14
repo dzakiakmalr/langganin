@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { useRouter } from "@/i18n/navigation";
 
 type InsightLogos = {

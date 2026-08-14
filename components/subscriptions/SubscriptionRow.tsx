@@ -6,12 +6,12 @@ import { differenceInDays, startOfDay } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { DELETED_RETENTION_DAYS, type Subscription } from "@/types/subscription";
-import BrandLogo from "@/components/BrandLogo";
-import ConfirmDialog from "@/components/ConfirmDialog";
+import BrandLogo from "@/components/ui/BrandLogo";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { formatIdr } from "@/lib/utils/format-currency";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 
 type SubscriptionRowProps = {
   subscription: Subscription;

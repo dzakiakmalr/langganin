@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import NotificationSettingsClient from "@/components/NotificationSettingsClient";
+import NotificationSettingsClient from "@/components/notifications/NotificationSettingsClient";
 
 type PageProps = {
   params: Promise<{ locale: string }>;

@@ -11,8 +11,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import BrandLogo from "@/components/BrandLogo";
-import LandingNav from "@/components/LandingNav";
+import BrandLogo from "@/components/ui/BrandLogo";
+import LandingNav from "@/components/landing/LandingNav";
 import ProductPreview from "@/components/landing/ProductPreview";
 import Reveal from "@/components/landing/Reveal";
 import { buildLogoUrl } from "@/lib/brands/brand-registry";

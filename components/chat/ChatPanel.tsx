@@ -17,8 +17,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import ChatComposer from "@/components/ChatComposer";
-import ChatMessage from "@/components/ChatMessage";
+import ChatComposer from "@/components/chat/ChatComposer";
+import ChatMessage from "@/components/chat/ChatMessage";
 import type { Category, Subscription } from "@/types/subscription";
 
 // ---------------------------------------------------------------------------

@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 
-import { useSubscriptions } from "@/components/SubscriptionsProvider";
-import SubscriptionForm from "@/components/SubscriptionForm";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import type { SubscriptionInput } from "@/components/SubscriptionsProvider";
+import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
+import SubscriptionForm from "@/components/subscriptions/SubscriptionForm";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import type { SubscriptionInput } from "@/components/subscriptions/SubscriptionsProvider";
 
 type Props = {
   id: string;
