@@ -20,73 +20,85 @@ Key idea: **fullstack in a single Next.js repo** (no separate backend needed). T
 
 | Layer | Choice | Reasoning |
 |---|---|---|
-| Framework | **Next.js 15 (App Router) + TypeScript** | You're already familiar with it, supports SSR/Server Actions, easy to deploy on Vercel |
-| Styling | **Tailwind CSS + shadcn/ui** | Fast to build consistent UI, ready-made components (form, dialog, table, calendar) |
-| Auth | **Supabase Auth** (email/password + Google OAuth) | Free, already integrated with the DB, no need to set up your own auth server |
-| Database | **PostgreSQL (Supabase)** | Relational, well-suited to subscription data (lots of relations & date queries), free tier is enough for MVP |
-| ORM | **Drizzle ORM** | Lighter & more type-safe than Prisma, works well with edge runtime, SQL-like queries are easier for an AI agent to read |
-| State/data fetching | **Server Components + Server Actions first.** Add **TanStack Query** only for specific interactive parts (e.g. optimistic "mark as paid", polling) | With App Router, most reads can go straight through Server Components with `fetch` caching/`revalidate` — no client-side data-fetching library needed for the MVP. Don't add React Query by default; add it later if a specific screen genuinely needs client-side caching or optimistic updates. |
-| Charts | **Recharts** or **Tremor** | Lightweight, good fit for a spending dashboard |
-| Fonts | **Bricolage Grotesque** + **Plus Jakarta Sans** via `next/font/google` | Self-hosted at build time by Next.js (no runtime Google Fonts CDN call) — see `04-DESIGN-SYSTEM.md` §3 for the pairing rationale |
-| Email reminders | **Resend** | Modern email API, free for small volume, easy to use from Next.js |
-| Scheduler (cron) | **Vercel Cron Jobs** (simplest) or Supabase Edge Functions + `pg_cron` | Runs a daily job: check subscriptions about to renew/trials ending → trigger email |
-| Push notifications (optional) | **Web Push API** + `next-pwa` | For a native-app-like feel on mobile |
-| WhatsApp reminders (Phase 2+, differentiator) | **Fonnte** or **Twilio WhatsApp API** | Most existing subscription trackers only offer Email/Telegram/Discord — WhatsApp is where Indonesian users actually expect reminders. Ship email first; add this once the core loop works, since it's a paid dependency. |
+| Framework | **Next.js 16 (App Router) + TypeScript** | Already in use; supports SSR/Server Actions, easy to deploy on Vercel |
+| Styling | **Tailwind CSS v4 + custom claymorphism/glassmorphism design system** | Custom design tokens in `app/globals.css` (`@theme` + `@utility`) — **no shadcn/ui**; components are hand-built to match `04-DESIGN-SYSTEM.md` |
+| Auth | **Supabase Auth** (email/password + Google OAuth) | Planned; login/register pages are placeholders, not yet wired |
+| Database | **PostgreSQL (Supabase)** | Planned; relational, well-suited to subscription data |
+| ORM | **Drizzle ORM** | Planned (see `lib/db/.gitkeep`); lighter & more type-safe than Prisma |
+| State/data fetching | **React Context + hooks (client) now; Server Components/Server Actions when the backend lands.** No TanStack Query. | The whole app runs on an in-memory `SubscriptionsProvider` + localStorage. The provider's public API is the stable seam the backend will replace (see `05-SITEMAP-AND-FLOWS.md` §5). |
+| Charts | **Recharts** | In use for dashboard pie + analytics charts |
+| Animation | **Framer Motion** (`framer-motion`) | Layout animations (language switcher, view toggle), landing-page reveal |
+| Forms | **react-hook-form + zod** (`@hookform/resolvers`) | Subscription form validation |
+| i18n | **next-intl** | Indonesian (default, prefix-free) + English (`/en`); `lib/messages/{id,en}.json` |
+| Fonts | **Space Grotesk** (display) + **Plus Jakarta Sans** (body) via `next/font/google` | Self-hosted at build time — see `04-DESIGN-SYSTEM.md` §3 |
+| AI chat | **Vercel AI SDK + OpenRouter** (`@ai-sdk/react`, `@openrouter/ai-sdk-provider`, `ai`) | Streaming `/api/chat` answering questions over the user's subscription snapshot |
+| Markdown (chat) | **react-markdown + remark-gfm** | Renders assistant replies |
+| Email reminders | **Resend** (planned) | Delivery not wired yet — preferences are saved only |
+| Scheduler (cron) | **Vercel Cron Jobs** | Daily job: check renewals/trials → send reminders |
+| WhatsApp reminders | **Fonnte** or **Twilio WhatsApp API** | Differentiator; ship email first |
 | Hosting | **Vercel** (frontend + API) + **Supabase** (DB/Auth) | Generous free tiers, auto-deploy from GitHub |
-| Testing | **Vitest** (unit) — optional for now, prioritize MVP first | Lightweight testing, can be added later |
+| Testing | **Vitest** (unit) — optional for now | Lightweight testing, can be added later |
 
 ### Why NOT a separate backend (Express/NestJS/Golang etc.)?
 For a solo MVP project like this, splitting off a separate backend only adds deployment & auth complexity without much benefit. Next.js API Routes/Server Actions are already enough for logic like "calculate the next billing date" or "check daily reminders".
 
-## 3. Recommended Folder Structure
+## 3. Recommended Folder Structure (actual, mirroring the implemented frontend)
 
 ```
 langganin/
 ├── app/
-│   ├── (auth)/login/page.tsx
-│   ├── (auth)/register/page.tsx
-│   ├── (dashboard)/dashboard/page.tsx
-│   ├── (dashboard)/subscriptions/page.tsx
-│   ├── (dashboard)/subscriptions/[id]/page.tsx
-│   ├── (dashboard)/calendar/page.tsx
+│   ├── [locale]/
+│   │   ├── (auth)/login|register/page.tsx
+│   │   ├── (dashboard)/
+│   │   │   ├── layout.tsx
+│   │   │   └── dashboard/{page,subscriptions,subscriptions/[id],calendar,notifications,analytics,settings}/page.tsx
+│   │   ├── layout.tsx
+│   │   └── page.tsx          # landing page
 │   ├── api/
-│   │   ├── subscriptions/route.ts
-│   │   ├── cron/check-renewals/route.ts   # triggered by Vercel Cron
-│   │   └── webhooks/                      # if needed later
-│   └── layout.tsx
+│   │   ├── chat/route.ts     # streaming AI chat (OpenRouter)
+│   │   └── health/route.ts
+│   ├── health/               # unlocalized health check
+│   └── globals.css
 ├── components/
-│   ├── ui/               # shadcn components
-│   ├── subscription-card.tsx
-│   ├── dashboard-summary.tsx
-│   └── calendar-view.tsx
+│   ├── ui/                   # shared primitives (BrandLogo, CategoryBadge, ConfirmDialog, …)
+│   ├── layout/               # Sidebar, Topbar, sidebar-context
+│   ├── dashboard/            # DashboardClient, SummaryCard, MiniCalendar, UpcomingRenewals
+│   ├── subscriptions/        # SubscriptionsProvider, List, Card, Row, Form, DetailModal, CategoryManagerModal, EditClient
+│   ├── calendar/             # CalendarClient, Month/Week views, DateDetailPopover, ExportMenu
+│   ├── analytics/            # AnalyticsClient, charts, InsightCard
+│   ├── notifications/        # NotificationBell, NotificationDropdown, NotificationSettingsClient
+│   ├── settings/             # Profile/Payment/NotificationDefaults/DataManagement/About sections
+│   ├── chat/                 # ChatPanel, ChatComposer, ChatMessage, ChatMarkdown
+│   └── landing/              # LandingNav, ProductPreview, Reveal
 ├── lib/
-│   ├── db/
-│   │   ├── schema.ts     # Drizzle schema
-│   │   └── index.ts      # db client
-│   ├── auth.ts
-│   ├── email.ts           # Resend wrapper
-│   └── date-utils.ts      # logic for next_billing_date, trial_end_date
-├── drizzle/                # migration files
+│   ├── ai/config.ts          # chat model + system prompt (OpenRouter)
+│   ├── brands/brand-registry.ts  # brand detection + Logo.dev URL builder
+│   ├── mock/subscriptions.ts # mock seed data
+│   ├── services/             # billing-dates.ts, data-management.ts (move to server later)
+│   ├── utils/                # analytics, export-{csv,excel,ics}, format-currency, notifications, subscription-{dates,math}
+│   ├── messages/{id,en}.json # i18n strings
+│   ├── currencies.ts, payment-methods.ts, fonts.ts
+│   └── db/                   # (empty — Drizzle schema lands here)
 ├── types/
-├── AGENTS.md
-├── 01-PRD.md
-├── 02-TECH-STACK.md
-├── 03-DATABASE-SCHEMA.md
+│   ├── subscription.ts       # Subscription + Category types (authoritative)
+│   └── notifications.ts      # reminder preferences + computed notifications
+├── docs/claudeai_mds/        # this documentation set
 └── package.json
 ```
 
-## 4. Core Dependencies (rough example package.json)
+## 4. Core Dependencies (actual package.json)
+
 ```
-next, react, react-dom, typescript
-tailwindcss, @shadcn/ui (via CLI, not a direct npm package)
-drizzle-orm, drizzle-kit, postgres (driver)
-@supabase/supabase-js, @supabase/ssr
-@tanstack/react-query
-resend
-recharts
-date-fns (for date manipulation — REQUIRED, don't calculate manually using native Date)
-zod (form & API input validation)
-react-hook-form
+next (16), react, react-dom, typescript
+tailwindcss v4, @tailwindcss/postcss
+date-fns (REQUIRED for all date math)
+zod, react-hook-form, @hookform/resolvers
+recharts, framer-motion
+next-intl
+ai, @ai-sdk/react, @openrouter/ai-sdk-provider
+react-markdown, remark-gfm
+lucide-react
+# (backend, when wired): drizzle-orm, drizzle-kit, postgres, @supabase/supabase-js, @supabase/ssr, resend
 ```
 
 ## 5. Important Note on Dates (a common source of bugs)

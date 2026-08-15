@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import AboutSection from "@/components/settings/AboutSection";
+import AccountSection from "@/components/settings/AccountSection";
 import DataManagementSection from "@/components/settings/DataManagementSection";
 import NotificationDefaultsSection from "@/components/settings/NotificationDefaultsSection";
 import PaymentMethodsSection from "@/components/settings/PaymentMethodsSection";
@@ -29,6 +30,7 @@ export default function SettingsClient() {
       <PaymentMethodsSection />
       <DataManagementSection />
       <AboutSection />
+      <AccountSection />
     </div>
   );
 }

@@ -1,10 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import { differenceInDays, parseISO, startOfDay } from "date-fns";
 
 import type { Subscription } from "@/types/subscription";
 
 import CategoryBadge from "@/components/ui/CategoryBadge";
+import SubscriptionDetailModal from "@/components/subscriptions/SubscriptionDetailModal";
 import type { Category } from "@/types/subscription";
 import { formatIdr } from "@/lib/utils/format-currency";
+import { findBrandByName } from "@/lib/brands/brand-registry";
 
 type UpcomingRenewalsProps = {
   subscriptions: Subscription[];
@@ -24,6 +29,7 @@ type RenewalRow = {
   category: Category | undefined;
   price: number;
   daysUntil: number;
+  subscription: Subscription;
 };
 
 function daysColor(days: number): string {
@@ -58,6 +64,7 @@ function buildRenewals(
       category: cats.find((c) => c.id === sub.category_id),
       price: sub.price,
       daysUntil: days,
+      subscription: sub,
     });
   }
 
@@ -69,6 +76,8 @@ export default function UpcomingRenewals({
   categories,
   labels,
 }: UpcomingRenewalsProps) {
+  const [selected, setSelected] = useState<Subscription | null>(null);
+
   const all = buildRenewals(subscriptions, categories);
   const within7 = all.filter((r) => r.daysUntil >= 0 && r.daysUntil <= 7);
   const within30 = all.filter(
@@ -97,7 +106,16 @@ export default function UpcomingRenewals({
                   return (
                     <li
                       key={row.id}
-                      className="cursor-default rounded-[16px] bg-clay-100 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-clay-200 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
+                      onClick={() => setSelected(row.subscription)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelected(row.subscription);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      className="cursor-pointer rounded-[16px] bg-clay-100 px-4 py-3 transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-[1px] hover:bg-clay-200 hover:clay-row-hover active:scale-[0.98] active:clay-row-press"
                     >
                       {/* Mobile: 2 blok — badge atas, nama+harga bawah */}
                       <div className="flex flex-col gap-1.5 sm:hidden">
@@ -156,6 +174,16 @@ export default function UpcomingRenewals({
               </ul>
             </div>
           ),
+      )}
+
+      {selected && (
+        <SubscriptionDetailModal
+          subscription={selected}
+          categoryName={categories.find((c) => c.id === selected.category_id)?.name}
+          categoryColor={categories.find((c) => c.id === selected.category_id)?.color}
+          brandColor={findBrandByName(selected.name)?.color}
+          onClose={() => setSelected(null)}
+        />
       )}
     </div>
   );

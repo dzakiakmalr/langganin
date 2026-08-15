@@ -1,6 +1,6 @@
 # Design System — Langganin
 
-Direction: **claymorphism** as the base tactile language (soft, puffy, pushed-out-of-clay surfaces), **glassmorphism** (Raycast-style frosted panels) reserved for floating/structural chrome, warm terracotta-orange as the accent, desktop-first (≥1280px canvas; mobile adaptation comes in a later phase — see `AGENTS.md` build checklist).
+Direction: **claymorphism** as the base tactile language (soft, puffy, pushed-out-of-clay surfaces), **glassmorphism** (frosted panels) reserved for floating/structural chrome, warm terracotta-orange as the accent. **Responsive** — built mobile-first-capable (≥360px phones through desktop); the sidebar collapses to a drawer on small screens and cards/list have explicit mobile breakpoints.
 
 ## 1. Why these two styles together, not one or the other
 Clay and glass are opposite instincts (solid/soft vs. transparent/sharp), so mixing them randomly reads messy. The rule that keeps it coherent:
@@ -47,11 +47,11 @@ Two-face pairing — don't default to a single font for everything, and don't re
 
 | Role | Font | Weight | Why |
 |---|---|---|---|
-| Display / headings | **Bricolage Grotesque** (Google Fonts, free, variable) | 600–700 | Has real character — slightly quirky curves and warmth without tipping into "playful/childish." Gives the app a distinct, happy personality on titles and section headers instead of reading as another generic SaaS dashboard. |
+| Display / headings | **Space Grotesk** (Google Fonts, free, variable) | 600–700 | Clean, geometric grotesk with a slightly techy/quirky character — gives titles a distinct, modern personality instead of reading as another generic SaaS dashboard. |
 | Body / UI text | **Plus Jakarta Sans** (Google Fonts, free, variable) | 400–500 | Rounded terminals and a generous x-height make it comfortable to read at length — important here, since the person reads this screen while genuinely weighing "should I keep paying for this?" It stays calm and legible instead of feeling clinical, which is the "betah" (comfortable-to-linger) quality you're after. |
 | Numbers / amounts | Plus Jakarta Sans, **tabular figures** (`font-variant-numeric: tabular-nums`) | 600 | Keeps price columns aligned and easy to scan — small detail, but matters a lot on a screen full of prices. |
 
-Both fonts are free, self-hostable (no runtime dependency on Google's CDN if you want full self-hosting later), and pair well: Bricolage Grotesque's character shows up only where it counts (titles), while Plus Jakarta Sans keeps the actual reading work comfortable.
+Both fonts are free, self-hosted via `next/font/google` at build time, and pair well: Space Grotesk's character shows up only where it counts (titles), while Plus Jakarta Sans keeps the actual reading work comfortable. (Note: the earlier Bricolage Grotesque was replaced with Space Grotesk — `--font-display` in `app/globals.css` + `lib/fonts.ts`.)
 
 ## 4. Claymorphism Recipe (for cards, buttons, inputs, toggles)
 - Fill: `--color-clay-100` (or `--color-clay-200` for hover/secondary). For the primary CTA, use `--color-brand-500`.
@@ -100,19 +100,19 @@ Both fonts are free, self-hostable (no runtime dependency on Google's CDN if you
 - The 1px white edge highlight is what actually sells "glass" — keep it visible, not subtle.
 - Keep glass panels' own drop shadow neutral and subtle (`shadow-md`) — the blur does most of the work; don't double up with a heavy clay-style shadow on top of glass.
 
-## 6. Signature Element: Command Palette
-Given the Raycast inspiration, don't stop at borrowing the blur — borrow the actual interaction: a `Cmd+K` / `Ctrl+K` command palette (glass panel, centered, floating over a dimmed/blurred backdrop) for quick actions like "Add subscription," "Go to Calendar," "Search subscriptions by name." This is the one place worth spending real interaction-design effort — see `05-SITEMAP-AND-FLOWS.md` for where it plugs into the flows. Keep everything else in the app calmer and more restrained so this doesn't get lost among competing effects.
+## 6. Signature Element: Topbar Search
+The topbar (desktop) has a **functional search field** with a glass-pill style: typing shows a live-results dropdown (logo + name + price, max ~7 matches), clicking a result opens that subscription's detail modal, and pressing Enter navigates to `/dashboard/subscriptions?q=…`. It replaced the earlier "Cmd+K — coming soon" placeholder. On mobile the topbar search is hidden (the Subscriptions page has its own search input).
 
-## 7. Desktop-First Notes
-- Design canvas: **1440px** wide as the primary target; a comfortable minimum of **1280px**. Don't design mobile breakpoints yet — see `AGENTS.md` build checklist, mobile is a later phase.
-- Layout: persistent left sidebar (glass style, ~240–260px) + main content area using a multi-column dashboard grid. Desktop gives you room for hover states — use them: clay elements should visibly lift on hover (§4), which has no real equivalent on touch, so don't over-invest in touch-specific interactions yet.
-- Because this is desktop-first, keyboard support matters more than usual: visible focus states on every interactive element, and the command palette (§6) as a first-class navigation method, not just a nice-to-have.
+## 7. Responsive Notes
+- Layout: persistent left sidebar (glass style, ~256px expanded / ~64px collapsed) on desktop; on mobile it becomes a fixed drawer opened from the topbar hamburger (near-solid `glass-drawer` background so menu text stays readable over dense content).
+- Target widths: phones ≥360px, tablets, and desktop ≥1280px. Use Tailwind responsive prefixes (`sm:` = 640px, `lg:` = 1024px) rather than building separate mobile screens.
+- Hover states (clay lift, glass highlight) are desktop-only; touch devices fall back to tap states. Keyboard support: visible focus rings on every interactive element.
 
 ## 8. Status Badges
 | Status | Color token | Style |
 |---|---|---|
-| `active` | success | pill badge, clay-lite (flat fill, no heavy shadow — badges are small enough that a full clay shadow looks noisy) |
-| `trial` | warning | pill badge, label reads "Trial — ends in Xd" |
+| `active` | success | pill badge, flat fill |
+| `trial` | warning | pill badge, label reads "Trial" (with a warning-colored pill in the detail modal) |
 | `paused` | text-muted | pill badge, flat fill |
-| `cancelled` | text-muted | pill badge, strikethrough text |
-| renewal within 3 days | warning | shown as a small dot/accent on the card, not a separate badge, to avoid badge clutter |
+| `cancelled` (soft-deleted) | text-muted | pill badge "Baru dihapus" + a "Pulihkan" (restore) action; item is dimmed/grayscale |
+| renewal within 3 days | warning/danger | shown as a colored days-left badge/dot, not a separate status badge |

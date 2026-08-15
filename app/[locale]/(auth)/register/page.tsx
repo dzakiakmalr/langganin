@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import SignUpForm from "@/components/auth/SignUpForm";
 import { Link } from "@/i18n/navigation";
 
 type PageProps = {
@@ -21,9 +22,14 @@ export default async function RegisterPage({ params }: PageProps) {
   const t = await getTranslations({ locale, namespace: "Register" });
 
   return (
-    <section>
+    <section className="rounded-card bg-surface p-6 shadow-md sm:p-8">
       <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
-      <p className="mt-3 text-text-muted">{t("description")}</p>
+      <p className="mt-2 text-sm text-text-muted">{t("description")}</p>
+
+      <div className="mt-6">
+        <SignUpForm />
+      </div>
+
       <p className="mt-6 text-sm text-text-muted">
         {t("haveAccount")}{" "}
         <Link

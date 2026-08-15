@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
+import { Check, Eye, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
 import { differenceInDays, startOfDay } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { DELETED_RETENTION_DAYS, type Subscription } from "@/types/subscription";
 import BrandLogo from "@/components/ui/BrandLogo";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import SubscriptionDetailModal from "@/components/subscriptions/SubscriptionDetailModal";
 import { formatIdr } from "@/lib/utils/format-currency";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -69,6 +70,7 @@ export default function SubscriptionRow({
   const { deleteSubscription, restoreSubscription, updateSubscription } =
     useSubscriptions();
   const [showDelete, setShowDelete] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
@@ -212,16 +214,34 @@ export default function SubscriptionRow({
 
       {/* Actions */}
       {!selectable && isDeleted ? (
-        <button
-          type="button"
-          aria-label={t("restoreButton")}
-          onClick={handleRestore}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-brand-600 transition-colors hover:bg-brand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
-        >
-          <RotateCcw size={15} aria-hidden />
-        </button>
+        <>
+          <button
+            type="button"
+            aria-label={t("viewDetail")}
+            onClick={() => setShowDetail(true)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-text-muted transition-colors hover:bg-clay-100 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            <Eye size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label={t("restoreButton")}
+            onClick={handleRestore}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-brand-600 transition-colors hover:bg-brand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            <RotateCcw size={15} aria-hidden />
+          </button>
+        </>
       ) : !selectable ? (
         <>
+          <button
+            type="button"
+            aria-label={t("viewDetail")}
+            onClick={() => setShowDetail(true)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-text-muted transition-colors hover:bg-clay-100 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            <Eye size={15} aria-hidden />
+          </button>
           <button
             type="button"
             aria-label={t("editButton")}
@@ -258,6 +278,16 @@ export default function SubscriptionRow({
         onConfirm={handleDelete}
         onCancel={() => setShowDelete(false)}
       />
+
+      {showDetail && (
+        <SubscriptionDetailModal
+          subscription={subscription}
+          categoryName={categoryName}
+          categoryColor={categoryColor}
+          brandColor={brandColor}
+          onClose={() => setShowDetail(false)}
+        />
+      )}
     </div>
   );
 }

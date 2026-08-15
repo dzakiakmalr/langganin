@@ -1,115 +1,147 @@
 # Sitemap, Components & UX Flows — Langganin
 
+> Updated to match the implemented frontend (routes under `app/[locale]/(dashboard)/dashboard/...`, components under `components/{dashboard,subscriptions,calendar,analytics,notifications,settings,chat,layout,ui,landing}/`).
+
 ## 1. Sitemap
 
 ```
-Landing (public)
-  └─ Login
-  └─ Register
-Dashboard (auth required)
-  ├─ Subscriptions (list/table)
-  │    └─ Subscription Detail / Edit
-  │    └─ Add Subscription (modal or dedicated page)
-  ├─ Calendar
-  ├─ Analytics (Phase 3)
-  └─ Settings
-       ├─ Profile (currency default, timezone, budget cap)
-       ├─ Categories
-       └─ Notification preferences
+Landing (public) — / and /en
+  └─ Login (/login)          — placeholder (Supabase Auth not wired)
+  └─ Register (/register)    — placeholder
+Dashboard (auth required) — /dashboard (and /en/dashboard)
+  ├─ Dashboard              — summary cards, mini calendar, upcoming renewals, category chart, AI chat panel
+  ├─ Subscriptions          — card/list view, search, filters, group-by, bulk select/delete, export
+  │    └─ Subscription Detail/Edit  (/dashboard/subscriptions/[id])
+  ├─ Notifications          — in-app notification list + reminder preferences
+  ├─ Calendar               — month/week view, date popover, export .ics/.csv
+  ├─ Analytics              — monthly trend, ranking, category/payment breakdown, insights
+  └─ Settings               — profile, currency, payment methods, notification defaults, data backup
 ```
 
 ## 2. Page Contents (so the AI agent doesn't invent layout on its own)
 
 ### Dashboard
-- Summary cards: total monthly spend, total yearly spend (projected), active subscriptions count.
-- "Upcoming renewals" list — next 7 days, then next 30 days as a secondary section.
-- Spending-by-category chart (pie or bar).
-- Empty state: friendly illustration/message + a prominent "Add your first subscription" button.
+- Summary cards: total monthly spend, projected yearly spend, active subscriptions count (with logo stack).
+- Mini calendar sidebar (clickable dates).
+- "Upcoming renewals" list — 7 days then 30 days. Each row is **clickable → opens the detail modal**.
+- Spending-by-category chart (pie).
+- AI chat panel (streaming assistant).
+- Empty state: friendly message + "Add your first subscription" button.
 
 ### Subscriptions (list)
-- Table or card grid (card grid preferred on mobile) showing: logo/icon, name, price, next billing date, status badge.
-- Search bar (by name) + filter by category/status.
-- "Add Subscription" button, always visible (sticky on mobile).
+- **Card grid** and **list** views (toggle persisted to localStorage).
+- Search (also wired to topbar search via `?q=`), filter by category & status, group-by (none/date/category/status).
+- **Bulk select**: a "Pilih banyak" toggle reveals checkboxes; a bottom action bar offers select-all / delete-selected (soft delete) with confirm.
+- Per-item actions: **view detail** (eye → modal), edit, pause/resume, delete (soft), restore (for deleted).
+- **Export** button → CSV (`.csv`) or Excel (`.xls`).
+- "Add Subscription" button (modal form) + "Kelola kategori" (category manager modal).
 
-### Subscription Detail / Edit
-- Full form: name, category, price, currency, billing cycle, start date, trial toggle + trial fields, payment method, notes.
-- History section (Phase 2+): list of `subscription_events` for this subscription.
-- Delete action behind a confirm dialog.
+### Subscription Detail / Edit (`/dashboard/subscriptions/[id]`)
+- Full form: name (with live brand/logo detection), category, price, currency, billing cycle, start date, trial toggle + duration (days/months/years), payment method (free-form + quick-picks), notes.
+- Delete (soft) is an icon button next to Batal/Simpan.
+- `ConfirmDialog` for delete.
+- Not-found state with "back to list".
+
+### Notifications
+- List of computed notifications (renewal / trial-end) with category-colored markers, unread state, mark-all-read.
+- Reminder preferences: global H- days + channels, and per-subscription overrides.
 
 ### Calendar
-- Month view; each day with a renewal/trial-end shows a small colored dot/badge (color = category color from `04-DESIGN-SYSTEM.md`).
-- Clicking a date shows a popover list of subscriptions due that day.
+- Month & week views; each day with a renewal/trial-end shows a colored marker (category color).
+- Clicking a date shows a popover list of subscriptions due that day + "add subscription" shortcut.
+- Export menu: `.ics` (all / this month) and `.csv` (all / this month).
 
-### Analytics (Phase 3)
-- Spend trend over time (line chart, fed by `subscription_events`).
-- Category breakdown over a selected period.
-- "Most expensive" and "least used" (once usage-marking exists) call-outs.
+### Analytics
+- Monthly spend trend (line chart), subscription ranking, category & payment-method breakdown, insight cards.
 
 ### Settings
-- Profile: default currency, timezone, monthly budget cap.
-- Categories: add/edit/remove custom categories with color picker.
-- Notifications: default reminder days-before, enabled channels (email/push/WhatsApp).
+- Profile: display name, currency format (`id`/`en`), default currency.
+- Payment methods: add/remove free-form favorite methods.
+- Notification defaults: global H- days + channels.
+- Data management: export JSON backup, import, reset all.
 
 ## 3. Component Inventory
-Reusable components the AI agent should build once and reuse — don't recreate variants of these per page:
 
 | Component | Used in |
 |---|---|
-| `Navbar` | All authenticated pages |
-| `Sidebar` | Dashboard layout |
-| `SubscriptionCard` | Dashboard, Subscriptions list |
-| `SummaryCard` | Dashboard |
-| `ChartCard` | Dashboard, Analytics |
-| `ReminderBadge` | SubscriptionCard, Subscription Detail |
-| `CategoryBadge` | SubscriptionCard, filters |
-| `CalendarView` | Calendar page |
-| `SubscriptionForm` | Add/Edit subscription |
-| `CommandPalette` | Global (Cmd+K) — quick add, search, navigate. See `04-DESIGN-SYSTEM.md` §6 |
+| `Sidebar` / `Topbar` (`components/layout`) | Dashboard shell (sticky topbar w/ search + notification bell + language switcher; collapsible sidebar, drawer on mobile) |
+| `SubscriptionCard` / `SubscriptionRow` | Subscriptions list (card & list views) |
+| `SubscriptionDetailModal` | Card/row/dashboard — read-only detail popup |
+| `SubscriptionForm` | Add / Edit subscription |
+| `CategoryManagerModal` | Categories CRUD |
+| `SubscriptionsProvider` | Central client state (subscriptions, categories, prefs, settings) — the seam for the backend |
+| `NotificationBell` / `NotificationDropdown` | Topbar |
+| `SummaryCard`, `MiniCalendar`, `UpcomingRenewals`, `DashboardClient` | Dashboard |
+| `ChartCard`, `ChartPie` | Dashboard, Analytics |
+| `CalendarClient`, `CalendarMonthView`, `CalendarWeekView`, `DateDetailPopover`, `ExportMenu` | Calendar |
+| `AnalyticsClient`, `AnalyticsCharts`, `ChartMonthlyTrend`, `ChartSubscriptionRanking`, `InsightCard` | Analytics |
+| `ChatPanel`, `ChatComposer`, `ChatMessage`, `ChatMarkdown` | AI chat |
 | `ConfirmDialog` | Delete actions anywhere |
-| `EmptyState` | Any list that can be empty |
-| `LoadingSkeleton` | Any async-loaded section |
+| `CategoryBadge`, `BrandLogo`, `EmptyState`, `LoadingSkeleton`, `LanguageSwitcher`, `MobileTabSwitcher` | Shared UI |
 
 ## 4. Core UX Flows
 
 ### Add a subscription
 ```
-Dashboard / Subscriptions list
-  → click "Add Subscription"
-  → SubscriptionForm (modal or page)
-  → fill fields, submit
-  → validation (inline errors if invalid)
-  → save (Server Action)
-  → redirect/close modal → back to list
-  → toast: "Subscription added"
-  → next_billing_date now visible on the card
+Dashboard / Subscriptions
+  → click "+ Tambah Langganan"
+  → SubscriptionForm (modal)
+  → fill fields; name auto-detects brand + logo
+  → next_billing_date / trial_end_date preview
+  → submit (addSubscription)
+  → modal closes → card appears
 ```
 
-### Trial about to end
+### View details (no navigation)
 ```
-Cron job runs daily
-  → finds subscriptions where trial_end_date - days_before = today
-  → sends email reminder
-  → user opens app, sees "Trial — ends in 1d" badge (warning color)
-  → user either cancels (status → cancelled) or does nothing (trial converts to active on trial_end_date)
-```
-
-### Delete a subscription
-```
-Subscription Detail / card menu
-  → click "Delete"
-  → ConfirmDialog ("This can't be undone")
-  → confirm
-  → delete (Server Action)
-  → toast: "Subscription removed"
-  → removed from list without a full page reload
+Any subscription card/row or dashboard renewal row
+  → click "Lihat detail" (eye) / click the row
+  → SubscriptionDetailModal (portal to <body>) shows name, category, status (Trial pill if trial), price, cycle, dates, payment method, notes
+  → close via X / backdrop / Escape
 ```
 
-### Quick add via Command Palette
+### Soft delete + restore
 ```
-Anywhere in the app
-  → press Cmd+K / Ctrl+K
-  → CommandPalette opens (glass panel, centered)
-  → type "add" or subscription name to search
-  → select "Add Subscription" → SubscriptionForm opens inline in the palette or as a follow-up modal
-  → same save flow as the standard Add Subscription flow above
+Card/row → Delete → ConfirmDialog → soft delete (status=cancelled, deleted_at=now)
+  → item shows "deleted" hint + "Pulihkan" (restore)
+  → after 14 days auto-purged
 ```
+
+### Bulk delete
+```
+Subscriptions → "Pilih banyak" → checkboxes appear → select items
+  → bottom bar: "{n} dipilih" + select-all + "Hapus yang dipilih"
+  → ConfirmDialog → soft-delete all selected
+```
+
+### Export
+```
+Subscriptions toolbar → "Export" → choose CSV (.csv) or Excel (.xls)
+  → downloads langganin-YYYYMMDD.csv / .xls (all subscriptions, not filtered)
+```
+
+### Notifications / reminders
+```
+Preferences (global + per-sub) → generateNotifications() re-scans on every state change
+  → bell shows unread count → dropdown lists renewals/trials by H- window
+  → mark read / mark all read
+```
+
+### AI chat
+```
+Chat panel (dashboard) → user asks "berapa total pengeluaran bulan ini?"
+  → client ships { messages, locale, context: { subscriptions, categories } } to /api/chat
+  → streamed assistant reply (OpenRouter)
+```
+
+### Global search
+```
+Topbar search (desktop) → type → live result dropdown (name + price)
+  → click result → go to detail; press Enter → /dashboard/subscriptions?q=...
+```
+
+## 5. Backend swap checklist (what changes when the DB lands)
+- `SubscriptionsProvider` (`components/subscriptions/SubscriptionsProvider.tsx`) is the single seam: replace the in-memory `useState` + localStorage with Server Actions / Route Handlers matching `06-API-CONTRACT.md`, keeping the hook's public API identical.
+- `lib/services/billing-dates.ts` moves to server-side (verbatim) for `next_billing_date` / `trial_end_date`.
+- `/api/chat` drops the client-shipped `context` in favor of a `user_id`-scoped server query.
+- Cron `/api/cron/check-renewals` reads `notification_preferences` + `subscription_overrides` to decide what to send, and logs to `reminder_sends`.

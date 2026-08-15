@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { differenceInDays, startOfDay } from "date-fns";
-import { Check, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
+import { Check, Eye, Pause, Pencil, Play, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { DELETED_RETENTION_DAYS, type Subscription } from "@/types/subscription";
 import CategoryBadge from "@/components/ui/CategoryBadge";
 import BrandLogo from "@/components/ui/BrandLogo";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import SubscriptionDetailModal from "@/components/subscriptions/SubscriptionDetailModal";
 import { formatIdr } from "@/lib/utils/format-currency";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -56,6 +57,7 @@ export default function SubscriptionCard({
   const { deleteSubscription, restoreSubscription, updateSubscription } =
     useSubscriptions();
   const [showDelete, setShowDelete] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
   const today = startOfDay(new Date());
   const daysUntil = differenceInDays(getRelevantDate(subscription), today);
@@ -218,6 +220,14 @@ export default function SubscriptionCard({
         <div className="mt-3 flex items-center gap-2 border-t border-clay-100 pt-3">
           <button
             type="button"
+            onClick={() => setShowDetail(true)}
+            className="inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
+          >
+            <Eye size={14} aria-hidden />
+            {t("viewDetail")}
+          </button>
+          <button
+            type="button"
             onClick={handleRestore}
             className="ml-auto inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-brand-600 transition-colors hover:bg-brand-100"
           >
@@ -227,6 +237,14 @@ export default function SubscriptionCard({
         </div>
       ) : !selectable ? (
         <div className="mt-3 flex items-center gap-2 border-t border-clay-100 pt-3">
+          <button
+            type="button"
+            onClick={() => setShowDetail(true)}
+            className="inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
+          >
+            <Eye size={14} aria-hidden />
+            {t("viewDetail")}
+          </button>
           <button
             type="button"
             onClick={() => router.push(editUrl)}
@@ -263,6 +281,16 @@ export default function SubscriptionCard({
         onConfirm={handleDelete}
         onCancel={() => setShowDelete(false)}
       />
+
+      {showDetail && (
+        <SubscriptionDetailModal
+          subscription={subscription}
+          categoryName={categoryName}
+          categoryColor={categoryColor}
+          brandColor={brandColor}
+          onClose={() => setShowDetail(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { differenceInDays, startOfDay } from "date-fns";
-import { CheckSquare, LayoutGrid, List, Settings2, Trash2, X } from "lucide-react";
+import { CheckSquare, Download, LayoutGrid, List, Settings2, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -16,6 +16,8 @@ import type { SubscriptionInput } from "@/components/subscriptions/Subscriptions
 import type { Subscription } from "@/types/subscription";
 import { getRelevantDate } from "@/lib/utils/subscription-dates";
 import { findBrandByName } from "@/lib/brands/brand-registry";
+import { generateCSV, downloadCSV } from "@/lib/utils/export-csv";
+import { generateExcel, downloadExcel } from "@/lib/utils/export-excel";
 
 type ViewMode = "card" | "list";
 type GroupBy = "none" | "date" | "category" | "status";
@@ -106,6 +108,9 @@ export default function SubscriptionsListClient({
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkDelete, setShowBulkDelete] = useState(false);
+
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   const [viewMode, setViewMode] = useState<ViewMode>("card");
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
@@ -269,6 +274,38 @@ export default function SubscriptionsListClient({
     setShowBulkDelete(false);
   };
 
+  // Close export menu on outside click / Escape
+  useEffect(() => {
+    if (!exportOpen) return;
+    function onDown(e: MouseEvent) {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setExportOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [exportOpen]);
+
+  const handleExport = (format: "csv" | "excel") => {
+    setExportOpen(false);
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+    if (format === "csv") {
+      const content = generateCSV(subscriptions, categories);
+      downloadCSV(content, `langganin-${dateStr}.csv`);
+    } else {
+      const content = generateExcel(subscriptions, categories);
+      downloadExcel(content, `langganin-${dateStr}.xls`);
+    }
+  };
+
   const isList = viewMode === "list";
   const showHeaders = groupBy !== "none";
 
@@ -395,6 +432,36 @@ export default function SubscriptionsListClient({
           <Settings2 size={14} aria-hidden />
           <span>{t("manageCategories")}</span>
         </button>
+        <div ref={exportRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setExportOpen((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={exportOpen}
+            className="inline-flex items-center gap-1.5 rounded-pill bg-clay-100 px-3 py-2 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-200 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            <Download size={14} aria-hidden />
+            <span>{t("export")}</span>
+          </button>
+          {exportOpen && (
+            <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-2xl bg-surface shadow-lg ring-1 ring-clay-100">
+              <button
+                type="button"
+                onClick={() => handleExport("csv")}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-text transition-colors hover:bg-clay-100"
+              >
+                {t("exportCSV")}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExport("excel")}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-text transition-colors hover:bg-clay-100"
+              >
+                {t("exportExcel")}
+              </button>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => setShowAddModal(true)}

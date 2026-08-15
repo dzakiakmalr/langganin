@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Menu, Search } from "lucide-react";
+import { ArrowRight, LogOut, Menu, Search } from "lucide-react";
 
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -21,6 +21,8 @@ export default function Topbar() {
   const { subscriptions, profileName } = useSubscriptions();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const avatarRef = useRef<HTMLDivElement>(null);
   const displayName = profileName.trim();
 
   const results = useMemo(() => {
@@ -45,6 +47,31 @@ export default function Topbar() {
   const goToSub = (id: string) => {
     setOpen(false);
     router.push(`/dashboard/subscriptions/${id}`);
+  };
+
+  // Close the account menu on outside click / Escape.
+  useEffect(() => {
+    if (!avatarOpen) return;
+    function onDown(e: MouseEvent) {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+        setAvatarOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setAvatarOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [avatarOpen]);
+
+  const handleLogout = () => {
+    setAvatarOpen(false);
+    // TODO(backend): call supabase.auth.signOut() here, then redirect.
+    router.push("/login");
   };
 
   return (
@@ -148,13 +175,37 @@ export default function Topbar() {
         <span className="hidden text-sm text-text-muted sm:block">
           {displayName ? t("greetingName", { name: displayName }) : t("greeting")}
         </span>
-        {/* Clay avatar pebble */}
-        <span
-          aria-hidden
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-bold text-text shadow-clay"
-        >
-          {(displayName.charAt(0) || "L").toUpperCase()}
-        </span>
+        {/* Clay avatar pebble → account menu */}
+        <div ref={avatarRef} className="relative">
+          <button
+            type="button"
+            aria-label={t("accountMenu")}
+            aria-haspopup="menu"
+            aria-expanded={avatarOpen}
+            onClick={() => setAvatarOpen((v) => !v)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-bold text-text shadow-clay transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            {(displayName.charAt(0) || "L").toUpperCase()}
+          </button>
+
+          {avatarOpen && (
+            <div className="absolute right-0 top-full z-50 mt-2 min-w-[200px] overflow-hidden rounded-2xl bg-surface shadow-lg ring-1 ring-clay-100">
+              <div className="border-b border-clay-100 px-4 py-3">
+                <p className="truncate text-sm font-semibold text-text">
+                  {displayName || t("guestName")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-semibold text-danger transition-colors hover:bg-danger/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
+              >
+                <LogOut size={15} aria-hidden />
+                {t("logout")}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -2,40 +2,44 @@
 
 DB: PostgreSQL (via Supabase). ORM: Drizzle.
 
+> Updated to match the implemented frontend (`types/subscription.ts`, `types/notifications.ts`). Key differences from earlier drafts: `payment_method` is now a **free-form string**, trial duration uses `trial_duration` + `trial_duration_unit` (not `trial_duration_days`), and deletion is a **soft delete** with a 14-day retention window.
+
 ## 1. ER Diagram (simplified)
 
 ```mermaid
 erDiagram
-  USERS ||--o{ SUBSCRIPTIONS : owns
-  USERS ||--o{ CATEGORIES : owns
+  PROFILES ||--o{ SUBSCRIPTIONS : owns
+  PROFILES ||--o{ CATEGORIES : owns
   SUBSCRIPTIONS }o--|| CATEGORIES : belongs_to
-  SUBSCRIPTIONS ||--o{ REMINDERS : has
+  SUBSCRIPTIONS ||--o{ SUBSCRIPTION_OVERRIDES : has
   SUBSCRIPTIONS ||--o{ SUBSCRIPTION_EVENTS : logs
-  SUBSCRIPTIONS ||--o{ PAYMENT_METHODS : uses
+  SUBSCRIPTIONS ||--o{ REMINDER_SENDS : sends
 ```
 
-## 2. Table: `users`
-Managed by Supabase Auth by default (`auth.users`). Add a `profiles` table for extra data:
+## 2. Table: `profiles`
+Managed by Supabase Auth (`auth.users`). Holds the per-user settings that the Settings page edits:
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK, FK → auth.users.id) | |
-| full_name | text | |
-| currency_default | text, default 'IDR' | |
-| timezone | text, default 'Asia/Jakarta' | |
-| budget_monthly_cap | numeric, nullable | for the budget alert feature (Phase 2) |
+| full_name | text | topbar greeting + avatar initial |
+| currency_format | text, default 'id' | `"id"` (Rp 1.000) or `"en"` (1,000.00) |
+| default_currency | text, default 'IDR' | |
+| payment_methods | text[] | favorite/pinned methods (free-form strings) surfaced first in the form |
 | created_at | timestamptz | |
+
+> `budget_monthly_cap` can be added here later for the budget-alert feature.
 
 ## 3. Table: `categories`
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
-| user_id | uuid (FK → profiles.id), nullable | null = global default category |
+| user_id | uuid (FK → profiles.id), nullable | null = global default category (read-only) |
 | name | text | e.g. "Streaming", "AI Tools", "E-commerce", "Gaming", "Productivity" |
-| icon | text, nullable | icon name (lucide-react) |
-| color | text, nullable | hex color for charts |
+| icon | text, nullable | lucide-react icon name |
+| color | text, nullable | hex color for charts/badges |
 
-> Seed default categories when a user first signs up: Streaming, AI Tools, E-commerce Membership, Gaming, Productivity, Other.
+> Seed default categories on first signup: Streaming, AI Tools, E-commerce Membership, Gaming, Productivity, Other. Users can add/edit/delete their **own** categories; deleting a category moves its subscriptions to `category_id = null`.
 
 ## 4. Table: `subscriptions`
 | Column | Type | Notes |
@@ -44,53 +48,78 @@ Managed by Supabase Auth by default (`auth.users`). Add a `profiles` table for e
 | user_id | uuid (FK → profiles.id) | |
 | category_id | uuid (FK → categories.id), nullable | |
 | name | text | e.g. "Netflix Premium" |
-| logo_url | text, nullable | |
+| logo_url | text, nullable | resolved from name via Logo.dev (client-side registry) |
 | price | numeric | |
 | currency | text, default 'IDR' | |
 | billing_cycle | enum: `weekly`, `monthly`, `yearly`, `custom_days` | |
 | custom_cycle_days | int, nullable | used when billing_cycle = custom_days |
 | start_date | date | subscription start date (not the trial) |
-| next_billing_date | date | **auto-calculated**, updated whenever a payment is marked as "paid" |
-| status | enum: `active`, `trial`, `paused`, `cancelled` | |
+| next_billing_date | date | **auto-calculated** server-side (`lib/services/billing-dates.ts`) |
+| status | enum: `active`, `trial`, `paused`, `cancelled` | `cancelled` = **soft-deleted** (see below) |
 | is_trial | boolean, default false | |
 | trial_start_date | date, nullable | |
-| trial_end_date | date, nullable | auto-calculated from trial_start_date + trial_duration_days |
-| trial_duration_days | int, nullable | 7 / 14 / 30 / custom |
-| payment_method | enum: `credit_card`, `debit_card`, `gopay`, `ovo`, `dana`, `shopeepay`, `qris`, `bank_transfer`, `other` | Indonesia-specific e-wallets are explicit values, not a generic "e_wallet" label — this is a deliberate differentiator vs. Western trackers (see `01-PRD.md` §9) |
+| trial_end_date | date, nullable | auto-calculated from trial_start_date + trial_duration + unit |
+| trial_duration | int, nullable | 7 / 14 / 30 / custom |
+| trial_duration_unit | enum: `days`, `months`, `years`, default `days` | |
+| payment_method | text | **free-form** — e.g. "GoPay", "OVO", "Kartu Kredit BCA". Not an enum. |
 | notes | text, nullable | |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
+| deleted_at | timestamptz, nullable | set when status → `cancelled` (soft delete) |
 
-## 5. Table: `reminders`
-Stores the reminder history/rules per subscription (flexible: users can customize how many days ahead they want to be reminded).
+> **Soft delete semantics:** `DELETE` sets `status = "cancelled"` and `deleted_at = now`. Rows are kept for `DELETED_RETENTION_DAYS` (14) so the user can restore them; a job (or a filtered read) purges them after the window. Restore clears `deleted_at` and sets status back to `trial` (if `is_trial`) or `active`.
+
+## 5. Notification preferences
+
+The frontend stores **preferences**, not per-cycle rows. The bell is populated by re-scanning subscriptions against these preferences on every state change.
+
+### 5a. `notification_preferences` (global defaults, one row per user)
+| Column | Type | Notes |
+|---|---|---|
+| user_id | uuid (PK, FK → profiles.id) | |
+| days_before | int[] | H- days before a renewal (e.g. `[7,3,1,0]`) |
+| trial_days_before | int[] | H- days before a trial ends |
+| channels | enum[]: `whatsapp`, `email`, `google_calendar` | |
+
+### 5b. `subscription_overrides` (per-subscription overrides)
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| subscription_id | uuid (FK → subscriptions.id, unique) | |
+| days_before | int[] | |
+| trial_days_before | int[] | |
+| channels | enum[] | |
+
+> A subscription with no row here falls back to `notification_preferences`. Read-state for the bell (`read_at` / read id set) can be stored client-side (as today) or in a `notification_reads` table if it must survive across devices.
+
+## 6. Table: `reminder_sends` (send log — replaces the old `reminders` table)
+Deduplication log so the cron job never double-sends:
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
 | subscription_id | uuid (FK → subscriptions.id) | |
-| days_before | int | e.g. 3, 1 |
-| channel | enum: `email`, `push`, `whatsapp` | `whatsapp` is Phase 2+ (via a provider like Fonnte/Twilio) — high-value for Indonesian users but adds a paid dependency, so ship `email` first |
-| sent_at | timestamptz, nullable | null if not yet sent for this cycle |
+| days_before | int | the H- window that fired |
+| channel | enum: `whatsapp`, `email`, `google_calendar` | |
 | target_date | date | the referenced target date (next_billing_date or trial_end_date) |
+| sent_at | timestamptz | |
 
-> The daily cron job queries: find `subscriptions` where `next_billing_date` or `trial_end_date` minus `days_before` = today, and `sent_at` is still null → send email → update `sent_at`.
+> Daily cron: for each live subscription, for each `days_before` in the effective override, compute `firesOn = target_date - days_before`; if `firesOn = today` and no `reminder_sends` row exists for `(subscription, days_before, channel, target_date)`, send + insert a row.
 
-## 6. Table: `subscription_events`
-Append-only log of things that happen to a subscription over time. This is what makes richer analytics possible later (e.g. "how many times did I get charged for this in the last year", "when did the price change") without having to reconstruct history from the current row state.
+## 7. Table: `subscription_events`
+Append-only history (unchanged — powers Analytics). Logs `payment`, `renewed`, `cancelled`, `paused`, `resumed`, `price_changed`, `trial_started`, `trial_converted`, `restored`.
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
 | subscription_id | uuid (FK → subscriptions.id) | |
-| event_type | enum: `payment`, `renewed`, `cancelled`, `paused`, `resumed`, `price_changed`, `trial_started`, `trial_converted` | |
-| amount | numeric, nullable | relevant for `payment` / `price_changed` |
+| event_type | enum | |
+| amount | numeric, nullable | |
 | occurred_at | timestamptz | |
 | note | text, nullable | |
 
-> Phase 1 can get away with just updating `subscriptions.status`/`next_billing_date` directly. Add `subscription_events` in Phase 1 anyway if you want the Analytics feature in Phase 2/3 to have real history to chart instead of only a snapshot of "today's state".
-
-## 7. Row-Level Security (REQUIRED if using Supabase)
-Enable RLS on all user-owned tables (`subscriptions`, `categories`, `reminders`):
+## 8. Row-Level Security (REQUIRED if using Supabase)
+Enable RLS on all user-owned tables (`profiles`, `subscriptions`, `categories`, `notification_preferences`, `subscription_overrides`, `reminder_sends`, `subscription_events`):
 ```sql
 alter table subscriptions enable row level security;
 create policy "Users can only access their own subscriptions"
@@ -98,11 +127,13 @@ on subscriptions for all
 using (auth.uid() = user_id);
 ```
 
-## 8. Recommended Indexes
+## 9. Recommended Indexes
 ```sql
 create index idx_subscriptions_user_id on subscriptions(user_id);
 create index idx_subscriptions_next_billing_date on subscriptions(next_billing_date);
 create index idx_subscriptions_trial_end_date on subscriptions(trial_end_date);
+create index idx_subscriptions_status on subscriptions(status);
+create index idx_subscriptions_deleted_at on subscriptions(deleted_at);
 create index idx_subscription_events_subscription_id on subscription_events(subscription_id);
+create index idx_reminder_sends_subscription_target on reminder_sends(subscription_id, target_date);
 ```
-Indexing date columns matters because the dashboard queries and cron job frequently filter/sort by these dates.

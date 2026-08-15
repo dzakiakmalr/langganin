@@ -80,11 +80,7 @@ export default async function LandingPage({
 
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div className="text-center lg:text-left">
-            <span className="glass-panel inline-flex items-center gap-2 rounded-pill px-3 py-1 text-xs font-bold text-brand-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" aria-hidden />
-              {t("heroBadge")}
-            </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-tight tracking-tight text-text sm:text-5xl sm:leading-tight">
+            <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-text sm:text-5xl sm:leading-tight">
               {t("heroHeadline")}{" "}
               <span className="text-brand-500">{t("heroHeadlineAccent")}</span>
             </h1>
@@ -112,29 +108,25 @@ export default async function LandingPage({
       </section>
 
       {/* ── Social proof strip ───────────────────────────────────── */}
-      <section className="relative z-10 px-4 py-8 sm:px-6">
+      <section className="relative z-10 px-4 py-6 sm:px-6">
         <Reveal>
-          <div className="glass-panel mx-auto flex max-w-4xl flex-col items-center gap-5 rounded-card px-6 py-6 text-center sm:flex-row sm:text-left">
+          <div className="glass-panel mx-auto flex max-w-3xl flex-col items-center justify-center gap-3 rounded-pill px-5 py-2.5 text-center sm:flex-row sm:gap-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               {t("socialProofEyebrow")}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-1">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
               {SOCIAL_BRANDS.map((b) => (
                 <BrandLogo
                   key={b.name}
                   logoSrc={buildLogoUrl(b.name)}
                   color={b.color}
                   name={b.name}
-                  size={30}
+                  size={26}
                   rounded="rounded-full"
-                  className="ring-2 ring-white"
+                  className="ring-1 ring-white"
                 />
               ))}
             </div>
-            <p className="text-sm text-text">
-              “{t("socialProofQuote")}”
-              <span className="ml-2 text-text-muted">— {t("socialProofAuthor")}</span>
-            </p>
           </div>
         </Reveal>
       </section>
