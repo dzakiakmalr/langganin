@@ -5,14 +5,19 @@ import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/settings/SectionCard";
 import { useRouter } from "@/i18n/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { clearDemo } from "@/lib/demo";
 
 export default function AccountSection() {
   const t = useTranslations("Settings");
   const router = useRouter();
 
-  const handleLogout = () => {
-    // TODO(backend): call supabase.auth.signOut() here, then redirect.
-    router.push("/login");
+  const handleLogout = async () => {
+    clearDemo();
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/");
+    router.refresh();
   };
 
   return (
@@ -25,7 +30,6 @@ export default function AccountSection() {
         <LogOut size={14} aria-hidden />
         {t("logoutButton")}
       </button>
-      <p className="mt-3 text-xs text-text-muted">{t("logoutHint")}</p>
     </SectionCard>
   );
 }

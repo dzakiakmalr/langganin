@@ -524,7 +524,7 @@ export default function SubscriptionsListClient({
                   })}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {group.items.map((sub) => {
                     const cat = categories.find((c) => c.id === sub.category_id);
                     const brand = findBrandByName(sub.name);

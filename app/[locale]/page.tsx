@@ -13,6 +13,7 @@ import {
 
 import BrandLogo from "@/components/ui/BrandLogo";
 import LandingNav from "@/components/landing/LandingNav";
+import DemoButton from "@/components/landing/DemoButton";
 import ProductPreview from "@/components/landing/ProductPreview";
 import Reveal from "@/components/landing/Reveal";
 import { buildLogoUrl } from "@/lib/brands/brand-registry";
@@ -94,12 +95,7 @@ export default async function LandingPage({
               >
                 {t("heroCTA")}
               </Link>
-              <Link
-                href="/dashboard"
-                className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
-              >
-                {t("heroDemo")}
-              </Link>
+              <DemoButton />
             </div>
           </div>
 
@@ -261,12 +257,6 @@ export default async function LandingPage({
                 className="rounded-pill bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-clay transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-clay-hover"
               >
                 {t("ctaButton")}
-              </Link>
-              <Link
-                href="/dashboard"
-                className="rounded-pill px-7 py-3 text-sm font-semibold text-text-muted transition-colors hover:bg-clay-100 hover:text-text"
-              >
-                {t("heroDemo")}
               </Link>
             </div>
           </div>

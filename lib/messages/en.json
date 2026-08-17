@@ -31,7 +31,7 @@
     "heroHeadlineAccent": "Track all your subscriptions & trials in one place.",
     "heroSubheadline": "Monitor renewal dates, get reminded before you're billed, and sum up your monthly spend — in Rupiah and multi-currency, plus ask AI about your subscriptions.",
     "heroCTA": "Sign Up Free",
-    "heroDemo": "See Dashboard (demo)",
+    "heroDemo": "View Demo",
     "featureEyebrow": "Everything you need",
     "socialProofEyebrow": "Track the services you use",
     "feature1Title": "Track Every Subscription",
@@ -397,7 +397,6 @@
     "accountTitle": "Account",
     "accountDesc": "Sign out of Langganin on this device.",
     "logoutButton": "Log out",
-    "logoutHint": "Note: the backend is not implemented yet — this button is a placeholder. Logout will call Supabase Auth signOut later.",
     "cancel": "Cancel"
   },
   "Notifications": {

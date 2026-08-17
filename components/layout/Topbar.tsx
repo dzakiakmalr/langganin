@@ -9,9 +9,11 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import BrandLogo from "@/components/ui/BrandLogo";
 import { useSubscriptions } from "@/components/subscriptions/SubscriptionsProvider";
 import { findBrandByName } from "@/lib/brands/brand-registry";
+import { createClient } from "@/lib/supabase/client";
 import { formatIdr } from "@/lib/utils/format-currency";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useSidebar } from "@/components/layout/sidebar-context";
+import { clearDemo } from "@/lib/demo";
 
 export default function Topbar() {
   const t = useTranslations("Topbar");
@@ -68,10 +70,13 @@ export default function Topbar() {
     };
   }, [avatarOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setAvatarOpen(false);
-    // TODO(backend): call supabase.auth.signOut() here, then redirect.
-    router.push("/login");
+    clearDemo();
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/");
+    router.refresh();
   };
 
   return (

@@ -3,6 +3,7 @@ import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "./i18n/routing";
+import { DEMO_COOKIE, DEMO_COOKIE_VALUE } from "./lib/demo";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -52,8 +53,13 @@ export default async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Temporary demo mode: a "view demo" button on the landing page sets a
+  // cookie so reviewers can explore the dashboard without a real account.
+  const isDemo =
+    request.cookies.get(DEMO_COOKIE)?.value === DEMO_COOKIE_VALUE;
+
   // 3. Redirect unauthenticated users away from protected routes.
-  if (!user && isProtected(request.nextUrl.pathname)) {
+  if (!user && !isDemo && isProtected(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = loginPath(request.nextUrl.pathname);
     url.search = "";

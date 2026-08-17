@@ -31,7 +31,7 @@
     "heroHeadlineAccent": "Lacak semua langganan & trial di satu tempat.",
     "heroSubheadline": "Pantau tanggal perpanjangan, dapat pengingat sebelum kena charge, dan rangkum pengeluaran bulananmu — dalam Rupiah dan multi-mata uang, plus tanya AI soal langgananmu.",
     "heroCTA": "Daftar Gratis",
-    "heroDemo": "Lihat Dasbor (demo)",
+    "heroDemo": "Lihat Demo",
     "featureEyebrow": "Semua yang kamu butuh",
     "socialProofEyebrow": "Lacak layanan yang kamu pakai",
     "feature1Title": "Lacak Semua Langganan",
@@ -397,7 +397,6 @@
     "accountTitle": "Akun",
     "accountDesc": "Keluar dari sesi Langganin di perangkat ini.",
     "logoutButton": "Keluar",
-    "logoutHint": "Catatan: backend belum diimplementasikan — tombol ini placeholder. Nanti logout akan memanggil Supabase Auth signOut.",
     "cancel": "Batal"
   },
   "Notifications": {

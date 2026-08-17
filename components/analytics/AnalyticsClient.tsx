@@ -237,13 +237,14 @@ export default function AnalyticsClient() {
         </div>
       </section>
 
-      {/* ── Mobile tab switcher (≤ lg) — toggles between charts & chat */}
-      <div className="lg:hidden">
+      {/* ── Tab switcher (< xl) — toggles between charts & chat. Also used
+             on tablets (lg) so the fixed chat column never squeezes the charts. */}
+      <div className="xl:hidden">
         <MobileTabSwitcher value={mobileTab} onChange={setMobileTab} />
       </div>
 
-      {/* ── DESKTOP (lg+): 2 columns — charts + sticky chat ─────────── */}
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-6 lg:items-start">
+      {/* ── DESKTOP (xl+): 2 columns — charts + sticky chat ─────────── */}
+      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:gap-6 xl:items-start">
         <AnalyticsCharts {...chartsProps} />
         <div className="sticky top-20 h-[calc(100vh-6rem)]">
           <ChatPanel
@@ -253,8 +254,8 @@ export default function AnalyticsClient() {
         </div>
       </div>
 
-      {/* ── MOBILE (< lg): tab-gated panels, each owns its own scroll */}
-      <div className="lg:hidden">
+      {/* ── TABLET/MOBILE (< xl): tab-gated panels, each owns its scroll */}
+      <div className="xl:hidden">
         {mobileTab === "summary" ? (
           <div
             id="analytics-tab-panel-summary"
